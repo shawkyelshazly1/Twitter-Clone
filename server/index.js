@@ -14,7 +14,14 @@ const app = express();
 
 // Adding dependencies to the app
 app.use(cors({ origin: true, credentials: true }));
-app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: true,
+    directives: {
+      "img-src": ["'self'", "https: data:"],
+    },
+  })
+);
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
