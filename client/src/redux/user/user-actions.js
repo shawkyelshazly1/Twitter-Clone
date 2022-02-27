@@ -56,7 +56,7 @@ const config = {
   headers: {
     "Content-type": "application/json",
   },
-  baseURL: "http://localhost:5000",
+
   withCredentials: true,
   credentials: "include",
 };
