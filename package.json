@@ -9,7 +9,7 @@
     "server":"cd server && nodemon index.js",
     "client":"cd client && npm run start",
     "dev":"concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
-    "heroku-postbuild":"cd client/src && npm install && npm run build"
+    "heroku-postbuild":"cd server && npm install && cd client/src && npm install && npm run build"
   },
   "repository": {
     "type": "git",
@@ -24,5 +24,6 @@
   "homepage": "https://github.com/shawkyelshazly1/Twitter-Clone#readme",
   "dependencies": {
     "concurrently": "^7.0.0"
+    
   }
 }
