@@ -36,6 +36,15 @@ app.use("/api/users", userRouter);
 // Adding tweet routes to express app
 app.use("/api/tweets", tweetRouter);
 
+// Serving the react from express
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../client/build")));
+
+  app.get("*", function (req, res) {
+    res.sendFile(path.join(__dirname, "../client/build", "index.html"));
+  });
+}
+
 // Connecting Mongoose & starting server on port: 5000
 mongoose
   .connect(process.env.MONGODB_URI, {

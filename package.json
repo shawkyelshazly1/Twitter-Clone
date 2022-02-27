@@ -4,7 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "setup": "npm install && cd server && npm install && cd client && npm install",
+    "start":"node server/index.js",
+    "server":"cd server && nodemon index.js",
+    "client":"cd client && npm run start",
+    "dev":"concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
+    "heroku-postbuild":"cd client/src && npm install && npm run build"
   },
   "repository": {
     "type": "git",
