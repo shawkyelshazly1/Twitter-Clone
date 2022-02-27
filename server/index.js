@@ -13,7 +13,7 @@ require("dotenv").config();
 const app = express();
 
 // Adding dependencies to the app
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
 app.use(helmet());
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -26,11 +26,15 @@ app.use(cookieParser());
 
 // Requiring Routes
 const userAuthRouter = require("./routes/user/auth"),
-  userRouter = require("./routes/user/user");
+  userRouter = require("./routes/user/user"),
+  tweetRouter = require("./routes/tweet/tweet");
 
-// Adding routes to express app
+// Adding user routes to express app
 app.use("/api/users", userAuthRouter);
 app.use("/api/users", userRouter);
+
+// Adding tweet routes to express app
+app.use("/api/tweets", tweetRouter);
 
 // Connecting Mongoose & starting server on port: 5000
 mongoose

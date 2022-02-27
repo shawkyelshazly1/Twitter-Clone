@@ -1,4 +1,4 @@
-const { loginSchema, registerSchema } = require("./joiSchema"),
+const { loginSchema, registerSchema, tweetSchema } = require("./joiSchema"),
   jwt = require("jsonwebtoken");
 
 // Validate Login payload against Joi Login Schema
@@ -25,7 +25,22 @@ exports.validateRegisterPayload = async function (req, res, next) {
     });
     next();
   } catch (error) {
-    console.log();
+    const messages = [];
+    error.details.forEach((err) => {
+      messages.push(err.message);
+    });
+    return res.status(400).json({ errors: messages });
+  }
+};
+
+// Validate Tweet payload against Joi Tweet Schema
+exports.validateTweetPayload = async function (req, res, next) {
+  try {
+    const ValidatedData = await tweetSchema.validateAsync(req.body, {
+      abortEarly: false,
+    });
+    next();
+  } catch (error) {
     const messages = [];
     error.details.forEach((err) => {
       messages.push(err.message);

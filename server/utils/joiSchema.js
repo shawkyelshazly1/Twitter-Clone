@@ -62,3 +62,12 @@ exports.registerSchema = Joi.object({
     "any.valid": "Passwords doesn't match",
   }),
 });
+
+exports.tweetSchema = Joi.object({
+  content: Joi.string().min(1).max(280).required().messages({
+    "string.min": "Tweet must be between 1 & 280 characters long.",
+    "string.max": "Tweet must be between 1 & 280 characters long.",
+    "any.required": "Tweet is required.",
+    "string.empty": "Tweet is required.",
+  }),
+});

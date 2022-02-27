@@ -44,14 +44,14 @@ exports.loginUser = async (req, res, next) => {
 
 // Check User authorization controller function
 exports.authUser = async (req, res, next) => {
-  let user = await User.findById(req.user._id);
+  let user = await User.findById(req.user._id, ["-password"]);
   if (!user) {
     return res
       .clearCookie("token")
       .status(401)
       .json({ errors: ["Access denied..."] });
   } else {
-    return res.status(200).json({ success: true });
+    return res.status(200).json({ success: true, user });
   }
 };
 
