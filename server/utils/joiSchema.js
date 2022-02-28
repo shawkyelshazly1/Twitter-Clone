@@ -70,4 +70,5 @@ exports.tweetSchema = Joi.object({
     "any.required": "Tweet is required.",
     "string.empty": "Tweet is required.",
   }),
+  media: Joi.string().uri().required().allow(""),
 });

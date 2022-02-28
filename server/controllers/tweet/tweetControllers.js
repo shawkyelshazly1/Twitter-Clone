@@ -1,8 +1,9 @@
 const e = require("express");
 const { findById } = require("../../models/tweet");
 const Tweet = require("../../models/tweet"),
-  Follower = require("../../models/followers");
-twitterTextUtil = require("twitter-text");
+  Follower = require("../../models/followers"),
+  twitterTextUtil = require("twitter-text"),
+  User = require("../../models/user");
 
 //Retrieving tweets for the people the user following, userId from req.user._id
 exports.getTweetsFeed = async (req, res, next) => {
@@ -53,50 +54,6 @@ exports.getTweetsFeed = async (req, res, next) => {
           _id: 0,
         },
       },
-
-      // {
-      //   $project: {
-      //     _id: 0,
-      //   },
-      // },
-
-      // {
-      //   $lookup: {
-      //     from: "followers",
-      //     localField: "authorId",
-      //     foreignField: "followingId",
-      //     as: "relationship",
-      //   },
-      // },
-      // { $match: { "relationship.0.userId": req.user._id } },
-      // // { $unset: "relationship" },
-      // // // {
-      // //   $lookup: {
-      // //     let: { author: { $toObjectId: "$authorId" } },
-      // //     from: "users",
-      // //     pipeline: [
-      // //       { $match: { $expr: { $eq: ["$_id", "$$author"] } } },
-      // //       {
-      // //         $project: {
-      // //           password: 0,
-      // //           dateOfBirth: 0,
-      // //           gender: 0,
-      // //         },
-      // //       },
-      // //     ],
-      // //     as: "authorInfo",
-      // //   },
-      // // },
-      // // {
-      // //   $replaceRoot: {
-      // //     newRoot: {
-      // //       $mergeObjects: [
-      // //         "$$ROOT",
-      // //         { authorInfo: { $arrayElemAt: ["$authorInfo", 0] } },
-      // //       ],
-      // //     },
-      // //   },
-      // // },
     ],
     function (err, tweets) {
       if (err) return res.status(400).json({ errors: [err] });
@@ -127,6 +84,8 @@ exports.addTweet = async (req, res, next) => {
   //destructuring fields
   let { content } = req.body;
   let { _id } = req.user;
+  let media = "";
+
   const hashtags = twitterTextUtil.extractHashtags(content);
   const mentions = twitterTextUtil.extractMentions(content);
 
@@ -139,9 +98,55 @@ exports.addTweet = async (req, res, next) => {
       hashtags,
       mentions,
     },
-  }).save(function (err, tweet) {
+    media,
+  }).save(async function (err, savedTweet) {
     if (err) return res.status(400).json({ errors: [err] });
-    return res.status(200).json({ success: true, message: "Added Tweet" });
+
+    const tweet = await Tweet.aggregate(
+      [
+        {
+          $match: { $expr: { $eq: ["$_id", savedTweet._id] } },
+        },
+        {
+          $addFields: { tweet: savedTweet },
+        },
+        { $unwind: "$tweet" },
+        { $project: { tweet: 1, _id: 0 } },
+        {
+          $lookup: {
+            let: { searchId: { $toObjectId: savedTweet.authorId } },
+            from: "users",
+            pipeline: [
+              { $match: { $expr: { $eq: ["$_id", "$$searchId"] } } },
+              {
+                $project: {
+                  password: 0,
+                  dateOfBirth: 0,
+                  gender: 0,
+                  createdAt: 0,
+                  updatedAt: 0,
+                },
+              },
+            ],
+            as: "authorInfo",
+          },
+        },
+        {
+          $addFields: { authorInfo: { $first: "$authorInfo" } },
+        },
+        {
+          $project: {
+            _id: 0,
+          },
+        },
+      ],
+      function (err, tweet) {
+        if (err) return res.status(400).json({ errors: [err] });
+        return res
+          .status(200)
+          .json({ success: true, message: "Added Tweet", tweet });
+      }
+    );
   });
 };
 
@@ -150,10 +155,11 @@ exports.deleteTweet = async (req, res, next) => {
   const { tweetId } = req.body;
   let tweet = await Tweet.findById(tweetId)
     .then((doc) => {
+      console.log(doc);
       if (!doc) {
         return res.status(400).json({ errors: [`Couldn't find that tweet.`] });
       } else {
-        if (doc.userId.toString() === req.user._id) {
+        if (doc.authorId.toString() === req.user._id) {
           doc.remove();
           return res
             .status(200)

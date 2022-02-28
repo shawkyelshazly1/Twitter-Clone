@@ -1,5 +1,52 @@
 /*! modern-normalize v1.0.0 | MIT License | https://github.com/sindresorhus/modern-normalize */
 
+.circle-wrap {
+  margin-left: auto;
+  width: 30px;
+  height: 30px;
+  background: #fefcff;
+  border-radius: 50%;
+  border: 0px solid #cdcbd0;
+}
+.circle-wrap .circle .mask,
+.circle-wrap .circle .fill {
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  border-radius: 50%;
+}
+
+.circle-wrap .circle .mask {
+  clip: rect(0px, 30px, 30px, 15px);
+}
+
+.circle-wrap .inside-circle {
+  width: 24px;
+  height: 24px;
+  margin-top: 3px;
+  margin-left: 3px;
+  border-radius: 50%;
+  background: #fff;
+  text-align: center;
+
+  color: #1e51dc;
+  position: absolute;
+  z-index: 100;
+  font-weight: 700;
+  font-size: 2em;
+}
+
+.mask .fill {
+  clip: rect(0px, 15px, 30px, 0px);
+  background-color: #227ded;
+}
+
+/* .mask.full,
+.circle .fill {
+  animation: fill ease-in-out 3s;
+  transform: rotate(160deg);
+} */
+
 /*
 Document
 ========

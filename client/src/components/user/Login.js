@@ -7,7 +7,7 @@ import { ReactComponent as LoadingComnponent } from "../../loading.svg";
 
 export default function Login() {
   const { isAuthenticated, isLoading } = useSelector((state) => state.auth);
-
+  
   const handleSubmit = (e) => {
     e.preventDefault();
 

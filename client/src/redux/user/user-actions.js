@@ -56,7 +56,7 @@ const config = {
   headers: {
     "Content-type": "application/json",
   },
-
+  baseURL: process.env.REACT_APP_DEV_BASEURL || "",
   withCredentials: true,
   credentials: "include",
 };

@@ -44,17 +44,6 @@ export default function Tweet({ tweet }) {
       <div className="pl-16">
         <p className="text-base width-auto font-medium text-gray-800 dark:text-white flex-shrink">
           {tweet.tweet.content}
-          {/* America, I’m honored that you have chosen me to lead our great
-          country.
-          <br />
-          <br />
-          The work ahead of us will be hard, but I promise you this: I will be a
-          <a href="#" className="text-blue-400 hover:underline">
-            #President
-          </a>
-          for all Americans — whether you voted for me or not.
-          <br />
-          <br />I will keep the faith that you have placed in me. */}
         </p>
 
         <div className="flex my-3 mr-2 rounded-2xl border border-gray-600">

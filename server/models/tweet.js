@@ -16,12 +16,9 @@ const tweetSchema = mongoose.Schema(
         mentions: [{ type: String, minLength: 5, maxLength: 30 }],
       },
     },
+    media: { type: String },
   },
   { timestamps: true }
 );
-
-tweetSchema.methods.getLikesCount = async function () {
-  return "test";
-};
 
 module.exports = mongoose.model("Tweet", tweetSchema);
