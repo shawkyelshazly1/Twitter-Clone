@@ -5,8 +5,7 @@ const express = require("express"),
   bodyParser = require("body-parser"),
   path = require("path"),
   helmet = require("helmet"),
-  cookieParser = require("cookie-parser"),
-  { expressCspHeader, INLINE, NONE, SELF } = require("express-csp-header");
+  cookieParser = require("cookie-parser");
 
 require("dotenv").config();
 
@@ -15,23 +14,26 @@ const app = express();
 
 // Adding dependencies to the app
 app.use(cors({ origin: true, credentials: true }));
-app.use(helmet());
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(
-  expressCspHeader({
+  // [
+  helmet.contentSecurityPolicy({
     directives: {
-      "default-src": [SELF],
-      "script-src": [SELF, INLINE],
-      "style-src": [SELF, "mystyles.net"],
-      "img-src": [SELF, INLINE, "data:", "res.cloudinary.com", "blob:"],
-      "worker-src": [NONE],
-      "block-all-mixed-content": true,
+      defaultSrc: ["'self'"],
+      connectSrc: ["'self'"],
+      frameSrc: ["'self'"],
+      childSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "https://res.cloudinary.com", "blob:", "data:"],
+      baseUri: ["'self'"],
     },
   })
+  // ]
 );
-
 /**
  * Requiring  Routes
  * Using /api/ for all routes to create REST API
