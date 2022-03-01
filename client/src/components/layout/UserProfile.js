@@ -15,7 +15,7 @@ export default function UserProfile() {
 
   useEffect(() => {
     store.dispatch(loadUserProfile(params.user_handler));
-  }, []);
+  }, [params]);
 
   if (loadingUserProfile) return <LoadingComponent />;
 
