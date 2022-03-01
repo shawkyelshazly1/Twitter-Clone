@@ -23,9 +23,9 @@ app.use(
   expressCspHeader({
     directives: {
       "default-src": [SELF],
-      "script-src": [SELF, INLINE, "somehost.com"],
+      "script-src": [SELF, INLINE],
       "style-src": [SELF, "mystyles.net"],
-      "img-src": ["data:", "images.com"],
+      "img-src": [SELF, INLINE, "data:", "res.cloudinary.com", "blob:"],
       "worker-src": [NONE],
       "block-all-mixed-content": true,
     },
