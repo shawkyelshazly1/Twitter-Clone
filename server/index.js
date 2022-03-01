@@ -5,7 +5,8 @@ const express = require("express"),
   bodyParser = require("body-parser"),
   path = require("path"),
   helmet = require("helmet"),
-  cookieParser = require("cookie-parser");
+  cookieParser = require("cookie-parser"),
+  { expressCspHeader, INLINE, NONE, SELF } = require("express-csp-header");
 
 require("dotenv").config();
 
@@ -14,18 +15,22 @@ const app = express();
 
 // Adding dependencies to the app
 app.use(cors({ origin: true, credentials: true }));
-app.use(
-  helmet.contentSecurityPolicy({
-    directives: true,
-    directives: {
-      "img-src": ["'self'", "data:"],
-      "default-src": ["'self'"],
-    },
-  })
-);
+app.use(helmet());
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
+app.use(
+  expressCspHeader({
+    directives: {
+      "default-src": [SELF],
+      "script-src": [SELF, INLINE, "somehost.com"],
+      "style-src": [SELF, "mystyles.net"],
+      "img-src": ["data:", "images.com"],
+      "worker-src": [NONE],
+      "block-all-mixed-content": true,
+    },
+  })
+);
 
 /**
  * Requiring  Routes
