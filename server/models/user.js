@@ -30,9 +30,9 @@ userSchema.pre("save", function (next) {
   let user = this;
 
   if (user.gender === "male") {
-    this.photo = `https://mir-s3-cdn-cf.behance.net/project_modules/disp/1bdc9a33850498.56ba69ac2ba5b.png`;
+    this.photo = `https://res.cloudinary.com/dwufx31ox/image/upload/v1646172575/avatar_dh0bj4.png`;
   } else {
-    this.photo = `https://i.pinimg.com/originals/10/12/c0/1012c06c7e1b0f8f5e60611992785e5a.png`;
+    this.photo = `https://res.cloudinary.com/dwufx31ox/image/upload/v1646172610/avatar2_agmtss.png`;
   }
   next();
 });
