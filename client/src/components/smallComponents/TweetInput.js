@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import {
   sendTweet,
+  sendTweetIncludeMedia,
   updateTweetCharsCount,
   uploadMedia,
 } from "../../redux/homepage/hompage-actions";
@@ -13,28 +14,11 @@ import ProgressCircle from "./ProgressCircle";
 
 export default function TweetInput() {
   const { userInfo } = useSelector((state) => state.user);
-
-  /**
-   * Change this whole part to REDUX actions to Save & Clear preview as well as have the file to be uploaded
-   */
-
-  // Setting States for uploaded file & the URL for preview
-  const [uploadedImage, setUploadedImage] = React.useState("");
-  const [imagePreviewURL, setImagePreviewURL] = React.useState("");
+  const { mediaPreviewURI, mediaFile } = useSelector((state) => state.homePage);
 
   // Getting count of characters and saving it in the
   const getCount = (e) => {
     store.dispatch(updateTweetCharsCount(e.target.value.length));
-  };
-
-  const getMedia = (file) => {
-    setUploadedImage(file);
-    setImagePreviewURL(URL.createObjectURL(file));
-  };
-
-  const clearMedia = () => {
-    setUploadedImage("");
-    setImagePreviewURL("");
   };
 
   const handleSubmitTweet = (e) => {
@@ -43,15 +27,14 @@ export default function TweetInput() {
       content: e.target[0].value,
       media: "",
     };
-    // if (uploadedImage !== "") {
 
-    //   store.dispatch(uploadMedia(uploadedImage));
-    // }
-    console.log(uploadedImage);
+    if (mediaFile === "") {
+      store.dispatch(sendTweet(formData));
+    } else {
+      store.dispatch(sendTweetIncludeMedia(mediaFile, formData));
+    }
 
-    // store.dispatch(sendTweet(formData));
     e.target[0].value = "";
-    clearMedia();
   };
 
   return (
@@ -83,12 +66,10 @@ export default function TweetInput() {
             ></textarea>
           </div>
         </div>
-        {imagePreviewURL === "" ? null : (
-          <MediaPreview mediaURI={imagePreviewURL} clearMedia={clearMedia} />
-        )}
+        {mediaPreviewURI === "" ? null : <MediaPreview />}
 
         <div className="w-full flex items-top p-2 text-white pl-14">
-          <MediaInput getMedia={getMedia} />
+          <MediaInput />
 
           <Link
             to="#"

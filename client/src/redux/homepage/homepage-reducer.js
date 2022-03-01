@@ -5,6 +5,9 @@ const initialState = {
   tweets: [],
   loadingTweets: false,
   tweetCharsCount: 0,
+  uploadedMediaURI: "",
+  mediaPreviewURI: "",
+  mediaFile: "",
 };
 
 const homepageReducer = function (state = initialState, action) {
@@ -43,13 +46,35 @@ const homepageReducer = function (state = initialState, action) {
         tweetCharsCount: action.payload,
       };
 
-    case homepageActionTypes.SEND_TWEET_FAIL:
-    case homepageActionTypes.UPLOAD_MEDIA_FAIL:
+    case homepageActionTypes.CLEAR_MEDIA:
+      return {
+        ...state,
+        mediaPreviewURI: "",
+        mediaFile: "",
+        uploadedMediaURI: "",
+      };
+    case homepageActionTypes.ADD_MEDIA_PREVIEW:
+      return {
+        ...state,
+        mediaPreviewURI: action.payload.previewURI,
+        mediaFile: action.payload.mediaFile,
+      };
+
     case homepageActionTypes.UPLOAD_MEDIA_SUCCESS:
       return { ...state };
 
+    case homepageActionTypes.UPLOAD_MEDIA_FAIL:
+      return { ...state, uploadedMediaURI: "", mediaFile: "" };
+
+    case homepageActionTypes.SEND_TWEET_FAIL:
+      return { ...state };
+
     case homepageActionTypes.SEND_TWEET_SUCCESS:
-      return { ...state, tweets: [action.payload, ...state.tweets] };
+      return {
+        ...state,
+        tweets: [action.payload, ...state.tweets],
+        uploadedMediaURI: "",
+      };
 
     default:
       return {

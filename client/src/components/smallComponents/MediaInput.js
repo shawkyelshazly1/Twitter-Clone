@@ -1,13 +1,15 @@
 import React from "react";
+import { setMediaPreview } from "../../redux/homepage/hompage-actions";
+import store from "../../redux/store";
 
-export default function MediaInput({ getMedia }) {
+export default function MediaInput() {
   const hiddenFileInput = React.useRef(null);
   const handleClick = (e) => {
     hiddenFileInput.current.click();
   };
   const handleChange = (e) => {
     const fileUploaded = e.target.files[0];
-    getMedia(fileUploaded);
+    store.dispatch(setMediaPreview(fileUploaded));
   };
 
   return (

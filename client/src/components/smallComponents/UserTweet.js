@@ -1,27 +1,30 @@
 import React from "react";
 import s from "underscore.string";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-export default function Tweet({ tweet }) {
+export default function UserTweet({ tweet }) {
+  const { loadedUser } = useSelector((state) => state.user);
+
   return (
     <div className="border-b border-gray-200 dark:border-dim-200 hover:bg-gray-100 dark:hover:bg-dim-300 cursor-pointer transition duration-350 ease-in-out pb-4 border-l border-r">
       <div className="flex flex-shrink-0 p-4 pb-0">
         <Link
-          to={`/${tweet.authorInfo.username}`}
+          to={`/${loadedUser.username}`}
           className="flex-shrink-0 group block"
         >
           <div className="flex items-top">
             <div>
               <img
                 className="inline-block h-9 w-9 rounded-full"
-                src={`${tweet.authorInfo.photo}`}
+                src={`${loadedUser.photo}`}
                 alt=""
               />
             </div>
             <div className="ml-3">
               <p className="flex items-center text-base leading-6 font-medium text-gray-800 dark:text-white">
-                {`${s.capitalize(tweet.authorInfo.firstName)}  ${s.capitalize(
-                  tweet.authorInfo.lastName
+                {`${s.capitalize(loadedUser.firstName)}  ${s.capitalize(
+                  loadedUser.lastName
                 )}`}
                 <svg
                   viewBox="0 0 24 24"
@@ -34,7 +37,7 @@ export default function Tweet({ tweet }) {
                   </g>
                 </svg>
                 <span className="ml-1 text-sm leading-5 font-medium text-gray-400 group-hover:text-gray-300 transition ease-in-out duration-150">
-                  @${tweet.authorInfo.username} . Nov 7
+                  @${loadedUser.username} . Nov 7
                 </span>
               </p>
             </div>
@@ -43,12 +46,12 @@ export default function Tweet({ tweet }) {
       </div>
       <div className="pl-16">
         <p className="text-base width-auto font-medium text-gray-800 dark:text-white flex-shrink">
-          {tweet.tweet.content}
+          {tweet.content}
         </p>
 
-        {tweet.tweet.media !== "" ? (
+        {tweet.media !== "" ? (
           <div className="flex my-3 mr-2 rounded-2xl border border-gray-600">
-            <img className="rounded-2xl" src={`${tweet.tweet.media}`} alt="" />
+            <img className="rounded-2xl" src={`${tweet.media}`} alt="" />
           </div>
         ) : (
           <div className="my-3"></div>

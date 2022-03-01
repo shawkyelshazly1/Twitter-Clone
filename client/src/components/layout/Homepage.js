@@ -1,12 +1,22 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { ReactComponent as LoadingComponent } from "../../loading.svg";
+import { loadUser } from "../../redux/auth/auth-actions";
+import { getTFUs, loadTweets } from "../../redux/homepage/hompage-actions";
+import store from "../../redux/store";
+import { loadFollowedUsers } from "../../redux/user/user-actions";
 import Tweet from "../smallComponents/Tweet";
 import TweetInput from "../smallComponents/TweetInput";
 
 export default function Homepage() {
   const { isLoading } = useSelector((state) => state.auth);
   const { loadingTweets, tweets } = useSelector((state) => state.homePage);
+
+  useEffect(() => {
+    store.dispatch(getTFUs());
+    store.dispatch(loadFollowedUsers());
+    store.dispatch(loadTweets());
+  }, []);
 
   if (isLoading) return <LoadingComponent />;
 

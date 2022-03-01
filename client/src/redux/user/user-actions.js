@@ -2,6 +2,7 @@ import * as userActionTypes from "./userActionTypes";
 import axios from "axios";
 import store from "../store";
 import { clearErrors, showErrors } from "../error/error-actions";
+import { getTFUs, loadTweets } from "../homepage/hompage-actions";
 
 // Loading User info and storing it in store using the auth loaduser handler
 export const loadUserInfo = (user) => (dispatch) => {
@@ -48,6 +49,50 @@ export const followUser = (user_id, user_handler) => (dispatch) => {
     .catch((err) => {
       store.dispatch(showErrors(err.response.data.errors));
       dispatch({ type: userActionTypes.FOLLOW_USER_FAIL });
+    });
+};
+
+// Load user profile
+export const loadUserProfile = (user_handler) => (dispatch) => {
+  dispatch({ type: userActionTypes.LOADING_USER_PROFILE });
+  axios
+    .get(`/api/users/${user_handler}/profile`, config)
+    .then((res) => {
+      store.dispatch(clearErrors());
+      dispatch({
+        type: userActionTypes.LOAD_USER_PROFILE_SUCCESS,
+        payload: res.data.user,
+      });
+      store.dispatch(loadUserTweets(res.data.user._id, user_handler));
+    })
+    .catch((err) => {
+      store.dispatch(showErrors(err.response.data.errors));
+      dispatch({ type: userActionTypes.LOAD_USER_PROFILE_FAIL });
+    });
+};
+
+// Load user tweets to get in profile
+export const loadUserTweets = (userId, user_handler) => (dispatch) => {
+  dispatch({ type: userActionTypes.LOADING_USER_TWEETS });
+
+  const body = JSON.stringify({});
+  const specialConfig = config;
+  specialConfig.params = {
+    userId,
+  };
+
+  axios
+    .get(`api/tweets/${user_handler}`, specialConfig)
+    .then((res) => {
+      store.dispatch(clearErrors());
+      dispatch({
+        type: userActionTypes.LOAD_USER_TWEETS_SUCCESS,
+        payload: res.data.tweets,
+      });
+    })
+    .catch((err) => {
+      store.dispatch(showErrors(err.response.data.errors));
+      dispatch({ type: userActionTypes.LOAD_USER_TWEETS_FAIL });
     });
 };
 

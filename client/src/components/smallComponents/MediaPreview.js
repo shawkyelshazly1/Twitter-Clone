@@ -1,12 +1,17 @@
 import React from "react";
+import { useSelector } from "react-redux";
+import { clearMedia } from "../../redux/homepage/hompage-actions";
+import store from "../../redux/store";
 import { ReactComponent as CloseButton } from "./remove-cross.svg";
 
-export default function MediaPreview({ mediaURI, clearMedia }) {
+export default function MediaPreview() {
+  const { mediaPreviewURI } = useSelector((state) => state.homePage);
+
   return (
     <div className="relative">
       <CloseButton
         onClick={() => {
-          clearMedia();
+          store.dispatch(clearMedia());
         }}
         style={{
           width: "30px",
@@ -16,7 +21,7 @@ export default function MediaPreview({ mediaURI, clearMedia }) {
           cursor: "pointer",
         }}
       />
-      <img className="h-3/4" src={`${mediaURI}`} alt="ph" />
+      <img className="h-3/4" src={`${mediaPreviewURI}`} alt="ph" />
     </div>
   );
 }

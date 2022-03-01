@@ -1,15 +1,16 @@
 const router = require("express").Router(),
   {
-    getUserProfile,
+    getCurrentUserProfile,
     followUser,
     unFollowUser,
     getTopFollowedUsers,
     getFollowedUsers,
+    getUserProfile
   } = require("../../controllers/user/userController"),
   { validateCookieToken } = require("../../utils/middlewares");
 
-// Retrieving User profile Info
-router.get("/profile", validateCookieToken, getUserProfile);
+// Retrieving current logged in User profile Info
+router.get("/profile", validateCookieToken, getCurrentUserProfile);
 
 // Follow Specific user {takes id to follow in payload as "followingId"}
 router.post("/:user_handler/follow", validateCookieToken, followUser);
@@ -22,5 +23,8 @@ router.get("/topFollowed", validateCookieToken, getTopFollowedUsers);
 
 // Get Followed Users
 router.get("/followedUsers", validateCookieToken, getFollowedUsers);
+
+// Get a user profile
+router.get("/:user_handler/profile", validateCookieToken, getUserProfile);
 
 module.exports = router;

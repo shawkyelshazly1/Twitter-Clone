@@ -63,24 +63,47 @@ export const sendTweet = (tweetData) => (dispatch) => {
         type: homepageActionTypes.SEND_TWEET_SUCCESS,
         payload: res.data.tweet[0],
       });
+      store.dispatch(clearMedia());
     })
     .catch((err) => {
       store.dispatch(showErrors(err.response.data.errors));
       dispatch({ type: homepageActionTypes.SEND_TWEET_FAIL });
+      store.dispatch(clearMedia());
     });
 };
 
-export const uploadMedia = (file) => (dispatch) => {
+// Setting Media Preview URI
+export const setMediaPreview = (file) => (dispatch) => {
+  dispatch({
+    type: homepageActionTypes.ADD_MEDIA_PREVIEW,
+    payload: { previewURI: URL.createObjectURL(file), mediaFile: file },
+  });
+};
+
+// Clearing Media Preview URI
+export const clearMedia = () => (dispatch) => {
+  dispatch({ type: homepageActionTypes.CLEAR_MEDIA });
+};
+
+// UPload media action
+export const sendTweetIncludeMedia = (file, tweetData) => (dispatch) => {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("upload_preset", "fr8uzr1b");
   axios
     .post("https://api.cloudinary.com/v1_1/dwufx31ox/image/upload", formData)
     .then((res) => {
-      console.log(res);
+      store.dispatch(clearErrors());
+      dispatch({
+        type: homepageActionTypes.UPLOAD_MEDIA_SUCCESS,
+      });
+      tweetData.media = res.data.secure_url;
+      console.log(res.data.secure_url);
+      store.dispatch(sendTweet(tweetData));
     })
     .catch((err) => {
-      console.log(err);
+      store.dispatch(showErrors(err.response.data.errors));
+      dispatch({ type: homepageActionTypes.UPLOAD_MEDIA_FAIL });
     });
 };
 

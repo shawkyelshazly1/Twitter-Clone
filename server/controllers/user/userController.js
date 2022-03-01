@@ -3,7 +3,7 @@ const User = require("../../models/user"),
   Follower = require("../../models/followers");
 
 // Function loading current loggedin user information
-exports.getUserProfile = async (req, res, next) => {
+exports.getCurrentUserProfile = async (req, res, next) => {
   let user = await User.findById(req.user._id).select(["-password"]);
   if (!user) {
     return res
@@ -13,6 +13,23 @@ exports.getUserProfile = async (req, res, next) => {
   } else {
     return res.status(200).json({ user });
   }
+};
+
+// Function to get user profile
+exports.getUserProfile = async (req, res, next) => {
+  let { user_handler } = req.params;
+  let user = await User.findOne({ username: user_handler })
+    .select(["-password"])
+    .then((user) => {
+      if (user) {
+        return res.json({ success: true, user });
+      } else {
+        return res.status(400).json({ message: "User not found." });
+      }
+    })
+    .catch((err) => {
+      return res.status(400).json({ errors: [err] });
+    });
 };
 
 // Function to follow a user

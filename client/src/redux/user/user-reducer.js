@@ -3,6 +3,10 @@ import * as userActionTypes from "./userActionTypes";
 const initialState = {
   userInfo: null,
   followedUsers: [],
+  loadedUser: null,
+  loadingUserProfile: true,
+  userTweets: [],
+  loadingUserTweets: true,
 };
 
 const userReducer = function (state = initialState, action) {
@@ -38,6 +42,27 @@ const userReducer = function (state = initialState, action) {
       return { ...state, followedUsers: action.payload.users };
     case userActionTypes.CLEAR_USER_INFO:
       return { ...state, userInfo: null, followedUsers: [] };
+
+    case userActionTypes.LOADING_USER_PROFILE:
+      return { ...state, loadingUserProfile: true };
+
+    case userActionTypes.LOAD_USER_PROFILE_SUCCESS:
+      return {
+        ...state,
+        loadingUserProfile: false,
+        loadedUser: action.payload,
+      };
+
+    case userActionTypes.LOADING_USER_TWEETS:
+      return { ...state, loadingUserTweets: true };
+    case userActionTypes.LOAD_USER_TWEETS_SUCCESS:
+      return { ...state, loadingUserTweets: false, userTweets: action.payload };
+    case userActionTypes.LOAD_USER_TWEETS_FAIL:
+      return { ...state, loadingUserTweets: false, userTweets: [] };
+
+    case userActionTypes.LOAD_USER_PROFILE_FAIL:
+      return { ...state, loadingUserProfile: false, loadedUser: null };
+
     default:
       return {
         ...state,

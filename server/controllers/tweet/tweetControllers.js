@@ -64,9 +64,8 @@ exports.getTweetsFeed = async (req, res, next) => {
 
 // Retrieving user tweets, userId passed in req.body
 exports.getUserTweets = async (req, res, next) => {
-  let { userId } = req.body;
-
-  let tweets = await Tweet.find({ userId })
+  let { userId } = req.query;
+  let tweets = await Tweet.find({ authorId: userId })
     .then((docs) => {
       if (docs) {
         return res.status(200).json({ success: true, tweets: docs });
@@ -82,9 +81,8 @@ exports.getUserTweets = async (req, res, next) => {
 // Adding new Tweet
 exports.addTweet = async (req, res, next) => {
   //destructuring fields
-  let { content } = req.body;
+  let { content, media } = req.body;
   let { _id } = req.user;
-  let media = "";
 
   const hashtags = twitterTextUtil.extractHashtags(content);
   const mentions = twitterTextUtil.extractMentions(content);
@@ -155,7 +153,6 @@ exports.deleteTweet = async (req, res, next) => {
   const { tweetId } = req.body;
   let tweet = await Tweet.findById(tweetId)
     .then((doc) => {
-      console.log(doc);
       if (!doc) {
         return res.status(400).json({ errors: [`Couldn't find that tweet.`] });
       } else {

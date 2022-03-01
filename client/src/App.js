@@ -11,6 +11,7 @@ import { loadUser } from "./redux/auth/auth-actions";
 import LeftMenu from "./components/layout/LeftMenu";
 import RightMenu from "./components/layout/RightMenu";
 import { getTFUs } from "./redux/homepage/hompage-actions";
+import UserProfile from "./components/layout/UserProfile";
 
 function App() {
   useEffect(() => {
@@ -34,6 +35,10 @@ function App() {
                     <div className="w-full sm:w-600 h-screen">
                       <Routes>
                         <Route path="/" element={<Homepage />} />
+                        <Route
+                          path="/:user_handler"
+                          element={<UserProfile />}
+                        />
                       </Routes>
                     </div>
                     <RightMenu />
