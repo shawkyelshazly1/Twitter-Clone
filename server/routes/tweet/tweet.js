@@ -8,6 +8,8 @@ const router = require("express").Router(),
     deleteTweet,
     getTweetsFeed,
     getUserTweets,
+    disLikeTweet,
+    likeTweet,
   } = require("../../controllers/tweet/tweetControllers");
 
 //Retrieving tweets for the people the user following
@@ -21,5 +23,11 @@ router.post("/", validateCookieToken, validateTweetPayload, addTweet);
 
 // Deleting Tweet passed as payload tweetId
 router.delete("/:tweetId", validateCookieToken, deleteTweet);
+
+// Like Tweet
+router.post("/:tweetId/like", validateCookieToken, likeTweet);
+
+// DisLike Tweet
+router.post("/:tweetId/dislike", validateCookieToken, disLikeTweet);
 
 module.exports = router;

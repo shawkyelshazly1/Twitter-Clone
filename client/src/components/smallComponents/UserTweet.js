@@ -37,7 +37,7 @@ export default function UserTweet({ tweet }) {
                   </g>
                 </svg>
                 <span className="ml-1 text-sm leading-5 font-medium text-gray-400 group-hover:text-gray-300 transition ease-in-out duration-150">
-                  @${loadedUser.username} . Nov 7
+                  @{loadedUser.username} . Nov 7
                 </span>
               </p>
             </div>

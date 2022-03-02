@@ -18,7 +18,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(
-  // [
   helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'"],
@@ -32,7 +31,6 @@ app.use(
       baseUri: ["'self'"],
     },
   })
-  // ]
 );
 /**
  * Requiring  Routes

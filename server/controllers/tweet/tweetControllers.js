@@ -3,7 +3,8 @@ const { findById } = require("../../models/tweet");
 const Tweet = require("../../models/tweet"),
   Follower = require("../../models/followers"),
   twitterTextUtil = require("twitter-text"),
-  User = require("../../models/user");
+  User = require("../../models/user"),
+  TweetLike = require("../../models/tweetLike");
 
 //Retrieving tweets for the people the user following, userId from req.user._id
 exports.getTweetsFeed = async (req, res, next) => {
@@ -29,6 +30,65 @@ exports.getTweetsFeed = async (req, res, next) => {
       { $unwind: "$tweet" },
       {
         $lookup: {
+          let: {
+            searchId: { $toString: "$tweet._id" },
+          },
+          from: "tweetlikes",
+          pipeline: [
+            { $match: { $expr: { $eq: ["$tweetId", "$$searchId"] } } },
+            { $count: "likesCount" },
+          ],
+          as: "tweetLikes",
+        },
+      },
+
+      {
+        $set: {
+          "tweet.tweetStats": {
+            $cond: [
+              { $eq: ["$tweetLikes", []] },
+              { likesCount: 0 },
+              { $first: "$tweetLikes" },
+            ],
+          },
+        },
+      },
+      {
+        $lookup: {
+          let: {
+            userSearchId: { $toString: req.user._id },
+            searchId: { $toString: "$tweet._id" },
+          },
+          from: "tweetlikes",
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$tweetId", "$$searchId"] },
+                    { $eq: ["$userId", "$$userSearchId"] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "liked",
+        },
+      },
+      {
+        $set: {
+          isLiked: {
+            $cond: [{ $eq: ["$liked", []] }, false, true],
+          },
+        },
+      },
+      {
+        $set: {
+          "tweet.isLiked": "$isLiked",
+        },
+      },
+      {
+        $lookup: {
           let: { searchId: { $toObjectId: "$tweet.authorId" } },
           from: "users",
           pipeline: [
@@ -52,6 +112,9 @@ exports.getTweetsFeed = async (req, res, next) => {
       {
         $project: {
           _id: 0,
+          tweetLikes: 0,
+          isLiked: 0,
+          liked: 0,
         },
       },
     ],
@@ -146,6 +209,63 @@ exports.addTweet = async (req, res, next) => {
       }
     );
   });
+};
+
+// Like Tweet passed as payload tweetId
+exports.likeTweet = async (req, res, next) => {
+  const { tweetId } = req.body;
+  const doc = await TweetLike.findOne({
+    tweetId,
+    userId: req.user._id.toString(),
+  })
+    .then((doc) => {
+      if (doc) {
+        return res
+          .status(400)
+          .json({ success: false, message: "You liked this tweet already." });
+      } else {
+        const tweetLike = TweetLike({
+          tweetId,
+          userId: req.user._id.toString(),
+        }).save(async function (err, doc) {
+          if (err) return res.status(400).json({ errors: [err] });
+          return res
+            .status(200)
+            .json({ success: true, message: "Like Tweet!" });
+        });
+      }
+    })
+    .catch((err) => {
+      if (err) return res.status(400).json({ errors: [err] });
+    });
+};
+
+// Like Tweet passed as payload tweetId
+exports.disLikeTweet = async (req, res, next) => {
+  const { tweetId } = req.body;
+  const doc = await TweetLike.findOne({
+    tweetId,
+    userId: req.user._id.toString(),
+  })
+    .then((doc) => {
+      if (!doc) {
+        return res
+          .status(400)
+          .json({ success: false, message: "You didn't like this tweet" });
+      } else {
+        if (doc.userId === req.user._id.toString()) {
+          doc.remove();
+          return res
+            .status(200)
+            .json({ success: true, message: "Disliked Tweet Successfully." });
+        } else {
+          return res.status(401).json({ errors: ["You'r not authorized..."] });
+        }
+      }
+    })
+    .catch((err) => {
+      if (err) return res.status(400).json({ errors: [err] });
+    });
 };
 
 // Deleting Tweet passed as payload tweetId
