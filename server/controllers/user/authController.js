@@ -31,7 +31,11 @@ exports.loginUser = async (req, res, next) => {
         const token = user.generateAuthToken();
         return res
           .status(200)
-          .cookie("token", token, { httpOnly: true })
+          .cookie("token", token, {
+            httpOnly: true,
+            sameSite: "none",
+            secure: true,
+          })
           .json({ success: true, message: "You're Logged In." });
       } else {
         return res
