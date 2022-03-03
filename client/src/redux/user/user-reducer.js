@@ -19,7 +19,6 @@ const userReducer = function (state = initialState, action) {
 
     case userActionTypes.FOLLOW_USER_SUCCESS:
       let users = [];
-      console.log(action.payload.user);
       if (state.followedUsers.includes(action.payload.user)) {
         return { ...state };
       } else {
@@ -29,7 +28,39 @@ const userReducer = function (state = initialState, action) {
         return { ...state, followedUsers: users };
       }
 
+    case userActionTypes.LIKE_USER_TWEET_SUCCESS:
+      let tweetId = action.payload;
+      let likedTweet = state.userTweets.filter(
+        (tweet) => tweet._id === tweetId
+      )[0];
+      likedTweet.isLiked = true;
+      likedTweet.tweetStats.likesCount += 1;
+      return {
+        ...state,
+        userTweets: state.userTweets.map((tweet) =>
+          tweet._id === tweetId ? likedTweet : tweet
+        ),
+      };
+
+    case userActionTypes.DISLIKE_USER_TWEET_SUCCESS:
+      let Id = action.payload;
+      let disLikedTweet = state.userTweets.filter(
+        (tweet) => tweet._id === Id
+      )[0];
+      disLikedTweet.isLiked = false;
+      if (disLikedTweet.tweetStats.likesCount > 0) {
+        disLikedTweet.tweetStats.likesCount -= 1;
+      }
+
+      return {
+        ...state,
+        userTweets: state.userTweets.map((tweet) =>
+          tweet._id === Id ? disLikedTweet : tweet
+        ),
+      };
     case userActionTypes.UNFOLLOW_USER_SUCCESS:
+    case userActionTypes.DISLIKE_USER_TWEET_FAIL:
+    case userActionTypes.LIKE_USER_TWEET_FAIL:
       return { ...state };
     case userActionTypes.LOADED_USER_INFO:
       return {

@@ -2,10 +2,12 @@ import React from "react";
 import s from "underscore.string";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
+import store from "../../redux/store";
+import { disLikeUserTweet, likeUserTweet } from "../../redux/user/user-actions";
+import { format, parseISO } from "date-fns";
 
 export default function UserTweet({ tweet }) {
   const { loadedUser } = useSelector((state) => state.user);
-
   return (
     <div className="border-b border-gray-200 dark:border-dim-200 hover:bg-gray-100 dark:hover:bg-dim-300 cursor-pointer transition duration-350 ease-in-out pb-4 border-l border-r">
       <div className="flex flex-shrink-0 p-4 pb-0">
@@ -37,7 +39,8 @@ export default function UserTweet({ tweet }) {
                   </g>
                 </svg>
                 <span className="ml-1 text-sm leading-5 font-medium text-gray-400 group-hover:text-gray-300 transition ease-in-out duration-150">
-                  @{loadedUser.username} . Nov 7
+                  @{loadedUser.username} .{" "}
+                  {format(parseISO(tweet.createdAt, 1), "MMM d")}
                 </span>
               </p>
             </div>
@@ -85,16 +88,35 @@ export default function UserTweet({ tweet }) {
                 14 k
               </div>
               <div className="flex-1 flex items-center text-gray-800 dark:text-white text-xs text-gray-400 hover:text-red-600 dark:hover:text-red-600 transition duration-350 ease-in-out">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="w-5 h-5 mr-2"
-                >
-                  <g>
-                    <path d="M12 21.638h-.014C9.403 21.59 1.95 14.856 1.95 8.478c0-3.064 2.525-5.754 5.403-5.754 2.29 0 3.83 1.58 4.646 2.73.814-1.148 2.354-2.73 4.645-2.73 2.88 0 5.404 2.69 5.404 5.755 0 6.376-7.454 13.11-10.037 13.157H12zM7.354 4.225c-2.08 0-3.903 1.988-3.903 4.255 0 5.74 7.034 11.596 8.55 11.658 1.518-.062 8.55-5.917 8.55-11.658 0-2.267-1.823-4.255-3.903-4.255-2.528 0-3.94 2.936-3.952 2.965-.23.562-1.156.562-1.387 0-.014-.03-1.425-2.965-3.954-2.965z"></path>
-                  </g>
-                </svg>
-                14 k
+                {tweet.isLiked ? (
+                  <svg
+                    onClick={() => {
+                      store.dispatch(disLikeUserTweet(tweet._id));
+                    }}
+                    viewBox="0 -17 100 100"
+                    fill="#E81C4F"
+                    className="w-9 h-9"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path d="M38.723,12c-7.187,0-11.16,7.306-11.723,8.131C26.437,19.306,22.504,12,15.277,12C8.791,12,3.533,18.163,3.533,24.647 C3.533,39.964,21.891,55.907,27,56c5.109-0.093,23.467-16.036,23.467-31.353C50.467,18.163,45.209,12,38.723,12z" />
+                  </svg>
+                ) : (
+                  <svg
+                    onClick={() => {
+                      store.dispatch(likeUserTweet(tweet._id));
+                    }}
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="w-5 h-5 mr-2 "
+                  >
+                    <g>
+                      <path d="M12 21.638h-.014C9.403 21.59 1.95 14.856 1.95 8.478c0-3.064 2.525-5.754 5.403-5.754 2.29 0 3.83 1.58 4.646 2.73.814-1.148 2.354-2.73 4.645-2.73 2.88 0 5.404 2.69 5.404 5.755 0 6.376-7.454 13.11-10.037 13.157H12zM7.354 4.225c-2.08 0-3.903 1.988-3.903 4.255 0 5.74 7.034 11.596 8.55 11.658 1.518-.062 8.55-5.917 8.55-11.658 0-2.267-1.823-4.255-3.903-4.255-2.528 0-3.94 2.936-3.952 2.965-.23.562-1.156.562-1.387 0-.014-.03-1.425-2.965-3.954-2.965z"></path>
+                    </g>
+                  </svg>
+                )}
+                {tweet.tweetStats.likesCount === "undefined"
+                  ? 0
+                  : tweet.tweetStats.likesCount}
               </div>
               <div className="flex-1 flex items-center text-gray-800 dark:text-white text-xs text-gray-400 hover:text-blue-400 dark:hover:text-blue-400 transition duration-350 ease-in-out">
                 <svg

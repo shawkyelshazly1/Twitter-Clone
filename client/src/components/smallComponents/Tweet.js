@@ -1,6 +1,9 @@
 import React from "react";
 import s from "underscore.string";
 import { Link } from "react-router-dom";
+import store from "../../redux/store";
+import { likeTweet, disLikeTweet } from "../../redux/homepage/hompage-actions";
+import { format, parseISO } from "date-fns";
 
 export default function Tweet({ tweet }) {
   return (
@@ -34,7 +37,8 @@ export default function Tweet({ tweet }) {
                   </g>
                 </svg>
                 <span className="ml-1 text-sm leading-5 font-medium text-gray-400 group-hover:text-gray-300 transition ease-in-out duration-150">
-                  @{tweet.authorInfo.username} . Nov 7
+                  @{tweet.authorInfo.username} .{" "}
+                  {format(parseISO(tweet.tweet.createdAt, 1), "MMM d")}
                 </span>
               </p>
             </div>
@@ -57,7 +61,7 @@ export default function Tweet({ tweet }) {
         <div className="flex">
           <div className="w-full">
             <div className="flex items-center">
-              <div className="flex-1 flex items-center text-gray-800 dark:text-white text-xs text-gray-400 hover:text-blue-400 dark:hover:text-blue-400 transition duration-350 ease-in-out">
+              <div className="flex-1 flex items-center text-gray-800 dark:text-white text-xs  hover:text-blue-400 dark:hover:text-blue-400 transition duration-350 ease-in-out">
                 <svg
                   viewBox="0 0 24 24"
                   fill="currentColor"
@@ -69,7 +73,7 @@ export default function Tweet({ tweet }) {
                 </svg>
                 12.3 k
               </div>
-              <div className="flex-1 flex items-center text-gray-800 dark:text-white text-xs text-gray-400 hover:text-green-400 dark:hover:text-green-400 transition duration-350 ease-in-out">
+              <div className="flex-1 flex items-center text-gray-800 dark:text-white text-xs hover:text-green-400 dark:hover:text-green-400 transition duration-350 ease-in-out">
                 <svg
                   viewBox="0 0 24 24"
                   fill="currentColor"
@@ -81,9 +85,12 @@ export default function Tweet({ tweet }) {
                 </svg>
                 14 k
               </div>
-              <div className="flex-1 flex items-center text-gray-800 dark:text-white text-xs text-gray-400 hover:text-red-600 dark:hover:text-red-600 transition duration-350 ease-in-out">
+              <div className="flex-1 flex items-center text-gray-800 dark:text-white text-xs  hover:text-red-600 dark:hover:text-red-600 transition duration-350 ease-in-out">
                 {tweet.tweet.isLiked ? (
                   <svg
+                    onClick={() => {
+                      store.dispatch(disLikeTweet(tweet.tweet._id));
+                    }}
                     viewBox="0 -17 100 100"
                     fill="#E81C4F"
                     className="w-9 h-9"
@@ -93,6 +100,9 @@ export default function Tweet({ tweet }) {
                   </svg>
                 ) : (
                   <svg
+                    onClick={() => {
+                      store.dispatch(likeTweet(tweet.tweet._id));
+                    }}
                     viewBox="0 0 24 24"
                     fill="currentColor"
                     className="w-5 h-5 mr-2 "
@@ -107,7 +117,7 @@ export default function Tweet({ tweet }) {
                   ? 0
                   : tweet.tweet.tweetStats.likesCount}
               </div>
-              <div className="flex-1 flex items-center text-gray-800 dark:text-white text-xs text-gray-400 hover:text-blue-400 dark:hover:text-blue-400 transition duration-350 ease-in-out">
+              <div className="flex-1 flex items-center text-gray-800 dark:text-white text-xs  hover:text-blue-400 dark:hover:text-blue-400 transition duration-350 ease-in-out">
                 <svg
                   viewBox="0 0 24 24"
                   fill="currentColor"

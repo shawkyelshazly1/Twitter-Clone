@@ -12,7 +12,6 @@ export default function UserProfile() {
   const { loadingUserProfile, loadedUser, userTweets, loadingUserTweets } =
     useSelector((state) => state.user);
   const params = useParams();
-
   useEffect(() => {
     store.dispatch(loadUserProfile(params.user_handler));
   }, [params]);

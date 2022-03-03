@@ -2,7 +2,6 @@ import * as userActionTypes from "./userActionTypes";
 import axios from "axios";
 import store from "../store";
 import { clearErrors, showErrors } from "../error/error-actions";
-import { getTFUs, loadTweets } from "../homepage/hompage-actions";
 
 // Loading User info and storing it in store using the auth loaduser handler
 export const loadUserInfo = (user) => (dispatch) => {
@@ -75,7 +74,6 @@ export const loadUserProfile = (user_handler) => (dispatch) => {
 export const loadUserTweets = (userId, user_handler) => (dispatch) => {
   dispatch({ type: userActionTypes.LOADING_USER_TWEETS });
 
-  const body = JSON.stringify({});
   const specialConfig = config;
   specialConfig.params = {
     userId,
@@ -93,6 +91,42 @@ export const loadUserTweets = (userId, user_handler) => (dispatch) => {
     .catch((err) => {
       store.dispatch(showErrors(err.response.data.errors));
       dispatch({ type: userActionTypes.LOAD_USER_TWEETS_FAIL });
+    });
+};
+
+// Like Tweet
+export const likeUserTweet = (tweetId) => (dispatch) => {
+  const body = JSON.stringify({ tweetId });
+  axios
+    .post(`/api/tweets/${tweetId}/like`, body, config)
+    .then((res) => {
+      store.dispatch(clearErrors());
+      dispatch({
+        type: userActionTypes.LIKE_USER_TWEET_SUCCESS,
+        payload: tweetId,
+      });
+    })
+    .catch((err) => {
+      store.dispatch(showErrors(err.response.data.errors));
+      dispatch({ type: userActionTypes.LIKE_USER_TWEET_FAIL });
+    });
+};
+
+//Dislike Tweet
+export const disLikeUserTweet = (tweetId) => (dispatch) => {
+  const body = JSON.stringify({ tweetId });
+  axios
+    .post(`/api/tweets/${tweetId}/dislike`, body, config)
+    .then((res) => {
+      store.dispatch(clearErrors());
+      dispatch({
+        type: userActionTypes.DISLIKE_USER_TWEET_SUCCESS,
+        payload: tweetId,
+      });
+    })
+    .catch((err) => {
+      store.dispatch(showErrors(err.response.data.errors));
+      dispatch({ type: userActionTypes.DISLIKE_USER_TWEET_FAIL });
     });
 };
 

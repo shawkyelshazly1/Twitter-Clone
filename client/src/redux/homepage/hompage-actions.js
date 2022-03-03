@@ -47,6 +47,42 @@ export const loadTweets = () => (dispatch) => {
     });
 };
 
+// Like Tweet
+export const likeTweet = (tweetId) => (dispatch) => {
+  const body = JSON.stringify({ tweetId });
+  axios
+    .post(`/api/tweets/${tweetId}/like`, body, config)
+    .then((res) => {
+      store.dispatch(clearErrors());
+      dispatch({
+        type: homepageActionTypes.LIKE_TWEET_SUCCESS,
+        payload: tweetId,
+      });
+    })
+    .catch((err) => {
+      store.dispatch(showErrors(err.response.data.errors));
+      dispatch({ type: homepageActionTypes.LIKE_TWEET_FAIL });
+    });
+};
+
+//Dislike Tweet
+export const disLikeTweet = (tweetId) => (dispatch) => {
+  const body = JSON.stringify({ tweetId });
+  axios
+    .post(`/api/tweets/${tweetId}/dislike`, body, config)
+    .then((res) => {
+      store.dispatch(clearErrors());
+      dispatch({
+        type: homepageActionTypes.DISLIKE_TWEET_SUCCESS,
+        payload: tweetId,
+      });
+    })
+    .catch((err) => {
+      store.dispatch(showErrors(err.response.data.errors));
+      dispatch({ type: homepageActionTypes.DISLIKE_TWEET_FAIL });
+    });
+};
+
 // Clearing HOmepage & resetting the store
 export const clearHomePage = () => (dispatch) => {
   dispatch({ type: homepageActionTypes.CLEAR_HOMEPAGE });
@@ -98,7 +134,6 @@ export const sendTweetIncludeMedia = (file, tweetData) => (dispatch) => {
         type: homepageActionTypes.UPLOAD_MEDIA_SUCCESS,
       });
       tweetData.media = res.data.secure_url;
-      console.log(res.data.secure_url);
       store.dispatch(sendTweet(tweetData));
     })
     .catch((err) => {

@@ -31,10 +31,8 @@ export const registerUser = (data) => (dispatch) => {
     .then((res) => {
       store.dispatch(clearErrors());
       dispatch({ type: authActionTypes.REGISTER_SUCCESS });
-      console.log(res);
     })
     .catch((err) => {
-      console.log(err.response);
       store.dispatch(showErrors(err.response.data.errors));
       dispatch({ type: authActionTypes.REGISTER_FAIL });
     });

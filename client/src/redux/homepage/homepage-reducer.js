@@ -60,13 +60,43 @@ const homepageReducer = function (state = initialState, action) {
         mediaFile: action.payload.mediaFile,
       };
 
-    case homepageActionTypes.UPLOAD_MEDIA_SUCCESS:
-      return { ...state };
-
     case homepageActionTypes.UPLOAD_MEDIA_FAIL:
       return { ...state, uploadedMediaURI: "", mediaFile: "" };
 
+    case homepageActionTypes.LIKE_TWEET_SUCCESS:
+      let tweetId = action.payload;
+      let editedTweet = state.tweets.filter(
+        (tweet) => tweet.tweet._id === tweetId
+      )[0];
+      editedTweet.tweet.isLiked = true;
+      editedTweet.tweet.tweetStats.likesCount += 1;
+      return {
+        ...state,
+        tweets: state.tweets.map((tweet) =>
+          tweet._id === tweetId ? editedTweet : tweet
+        ),
+      };
+
+    case homepageActionTypes.DISLIKE_TWEET_SUCCESS:
+      let Id = action.payload;
+      let dislikedTweet = state.tweets.filter(
+        (tweet) => tweet.tweet._id === Id
+      )[0];
+      dislikedTweet.tweet.isLiked = false;
+      if (dislikedTweet.tweet.tweetStats.likesCount > 0) {
+        dislikedTweet.tweet.tweetStats.likesCount -= 1;
+      }
+      return {
+        ...state,
+        tweets: state.tweets.map((tweet) =>
+          tweet._id === Id ? dislikedTweet : tweet
+        ),
+      };
+
     case homepageActionTypes.SEND_TWEET_FAIL:
+    case homepageActionTypes.UPLOAD_MEDIA_SUCCESS:
+    case homepageActionTypes.LIKE_TWEET_FAIL:
+    case homepageActionTypes.DISLIKE_TWEET_FAIL:
       return { ...state };
 
     case homepageActionTypes.SEND_TWEET_SUCCESS:

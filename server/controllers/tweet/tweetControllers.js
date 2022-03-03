@@ -21,6 +21,7 @@ exports.getTweetsFeed = async (req, res, next) => {
       },
       { $project: { tweets: 1, _id: 0 } },
       { $unwind: "$tweets" },
+      { $sort: { "tweets.createdAt": -1 } },
       {
         $group: {
           _id: null,
@@ -128,17 +129,76 @@ exports.getTweetsFeed = async (req, res, next) => {
 // Retrieving user tweets, userId passed in req.body
 exports.getUserTweets = async (req, res, next) => {
   let { userId } = req.query;
-  let tweets = await Tweet.find({ authorId: userId })
-    .then((docs) => {
-      if (docs) {
-        return res.status(200).json({ success: true, tweets: docs });
+  let tweets = await Tweet.aggregate(
+    [
+      { $match: { authorId: userId } },
+      {
+        $lookup: {
+          let: { searchId: { $toString: "$_id" } },
+          from: "tweetlikes",
+          pipeline: [
+            { $match: { $expr: { $eq: ["$tweetId", "$$searchId"] } } },
+            { $count: "likesCount" },
+          ],
+          as: "tweetLikes",
+        },
+      },
+      {
+        $set: {
+          tweetStats: {
+            $cond: [
+              { $eq: ["$tweetLikes", []] },
+              { likesCount: 0 },
+              { $first: "$tweetLikes" },
+            ],
+          },
+        },
+      },
+      {
+        $lookup: {
+          let: {
+            userSearchId: { $toString: userId },
+            searchId: { $toString: "$_id" },
+          },
+          from: "tweetlikes",
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$tweetId", "$$searchId"] },
+                    { $eq: ["$userId", "$$userSearchId"] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "liked",
+        },
+      },
+      {
+        $set: {
+          isLiked: {
+            $cond: [{ $eq: ["$liked", []] }, false, true],
+          },
+        },
+      },
+      {
+        $project: {
+          liked: 0,
+          tweetLikes: 0,
+        },
+      },
+    ],
+    function (err, tweets) {
+      if (err) return res.status(400).json({ errors: [err] });
+      if (tweets) {
+        return res.status(200).json({ success: true, tweets });
       } else {
         return res.status(200).json({ success: true, tweets: [] });
       }
-    })
-    .catch((err) => {
-      if (err) return res.status(400).json({ errors: [err] });
-    });
+    }
+  );
 };
 
 // Adding new Tweet
@@ -175,6 +235,62 @@ exports.addTweet = async (req, res, next) => {
         { $project: { tweet: 1, _id: 0 } },
         {
           $lookup: {
+            let: { searchId: { $toString: "$tweet._id" } },
+            from: "tweetlikes",
+            pipeline: [
+              { $match: { $expr: { $eq: ["$tweetId", "$$searchId"] } } },
+              { $count: "likesCount" },
+            ],
+            as: "tweetLikes",
+          },
+        },
+        {
+          $set: {
+            "tweet.tweetStats": {
+              $cond: [
+                { $eq: ["$tweetLikes", []] },
+                { likesCount: 0 },
+                { $first: "$tweetLikes" },
+              ],
+            },
+          },
+        },
+        {
+          $lookup: {
+            let: {
+              userSearchId: { $toString: req.user._id },
+              searchId: { $toString: "$tweet._id" },
+            },
+            from: "tweetlikes",
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ["$tweetId", "$$searchId"] },
+                      { $eq: ["$userId", "$$userSearchId"] },
+                    ],
+                  },
+                },
+              },
+            ],
+            as: "liked",
+          },
+        },
+        {
+          $set: {
+            isLiked: {
+              $cond: [{ $eq: ["$liked", []] }, false, true],
+            },
+          },
+        },
+        {
+          $set: {
+            "tweet.isLiked": "$isLiked",
+          },
+        },
+        {
+          $lookup: {
             let: { searchId: { $toObjectId: savedTweet.authorId } },
             from: "users",
             pipeline: [
@@ -198,6 +314,9 @@ exports.addTweet = async (req, res, next) => {
         {
           $project: {
             _id: 0,
+            // tweetLikes: 0,
+            // isLiked: 0,
+            // liked: 0,
           },
         },
       ],

@@ -25,6 +25,7 @@ exports.loginUser = async (req, res, next) => {
   if (!user) {
     return res.status(400).json({ errors: ["Incorrect Email or Password."] });
   } else {
+    let cookieSecureOption;
     user.comparePassword(password, function (err, isMatch) {
       if (err) return res.status(400).json({ errors: [err] });
       if (isMatch) {
