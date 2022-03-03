@@ -20,15 +20,33 @@ exports.getTweetsFeed = async (req, res, next) => {
         },
       },
       { $project: { tweets: 1, _id: 0 } },
+      {
+        $lookup: {
+          let: {
+            userSearchId: { $toString: req.user._id },
+          },
+          from: "tweets",
+          pipeline: [
+            { $match: { $expr: { $eq: ["$authorId", "$$userSearchId"] } } },
+          ],
+          as: "tweetss",
+        },
+      },
       { $unwind: "$tweets" },
-      { $sort: { "tweets.createdAt": -1 } },
+      { $unwind: "$tweetss" },
+
       {
         $group: {
           _id: null,
-          tweet: { $push: "$tweets" },
+          tweet: { $addToSet: "$tweets" },
+          tweets: { $addToSet: "$tweetss" },
         },
       },
+      {
+        $project: { tweet: { $concatArrays: ["$tweet", "$tweets"] } },
+      },
       { $unwind: "$tweet" },
+      { $sort: { "tweet.createdAt": -1 } },
       {
         $lookup: {
           let: {
@@ -132,6 +150,7 @@ exports.getUserTweets = async (req, res, next) => {
   let tweets = await Tweet.aggregate(
     [
       { $match: { authorId: userId } },
+      { $sort: { createdAt: -1 } },
       {
         $lookup: {
           let: { searchId: { $toString: "$_id" } },

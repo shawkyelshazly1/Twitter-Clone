@@ -11,7 +11,11 @@ import UserTweet from "../smallComponents/UserTweet";
 export default function UserProfile() {
   const { loadingUserProfile, loadedUser, userTweets, loadingUserTweets } =
     useSelector((state) => state.user);
+
+  const { user } = useSelector((state) => state.auth);
+
   const params = useParams();
+
   useEffect(() => {
     store.dispatch(loadUserProfile(params.user_handler));
   }, [params]);
@@ -62,11 +66,19 @@ export default function UserProfile() {
               </div>
             </div>
 
-            <div className="flex flex-col text-right">
-              <button className="flex justify-center  max-h-max whitespace-nowrap focus:outline-none  focus:ring  rounded max-w-max border bg-transparent border-blue-500 text-blue-500 hover:border-blue-800 hover:border-blue-800 flex items-center hover:shadow-lg font-bold py-2 px-4 rounded-full mr-0 ml-auto">
-                Edit Profile
-              </button>
-            </div>
+            {loadedUser._id === user._id ? (
+              <div className="flex flex-col text-right">
+                <button className="flex justify-center  max-h-max whitespace-nowrap focus:outline-none  focus:ring  rounded max-w-max border bg-transparent border-blue-500 text-blue-500 hover:border-blue-800 hover:border-blue-800 flex items-center hover:shadow-lg font-bold py-2 px-4 rounded-full mr-0 ml-auto">
+                  Edit Profile
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col text-right">
+                <button className="flex justify-center  max-h-max whitespace-nowrap focus:outline-none  focus:ring  rounded max-w-max border bg-transparent border-blue-500 text-blue-500 hover:border-blue-800 hover:border-blue-800 flex items-center hover:shadow-lg font-bold py-2 px-4 rounded-full mr-0 ml-auto">
+                  Follow
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="space-y-1 justify-center w-full mt-3 ml-3">
