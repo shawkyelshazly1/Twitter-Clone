@@ -157,7 +157,7 @@ exports.getUserTweets = async (req, res, next) => {
       {
         $lookup: {
           let: {
-            userSearchId: { $toString: userId },
+            userSearchId: { $toString: req.user._id },
             searchId: { $toString: "$_id" },
           },
           from: "tweetlikes",
