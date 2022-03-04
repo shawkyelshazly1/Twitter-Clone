@@ -230,8 +230,9 @@ exports.getTopFollowedUsers = async (req, res, next) => {
               },
             },
           ],
-          function (err, users) {
+          async function (err, users) {
             if (err) return res.status(400).json({ errors: [err] });
+
             return res.status(200).json({ success: true, users });
           }
         );
@@ -290,8 +291,9 @@ exports.getTopFollowedUsers = async (req, res, next) => {
               },
             },
           ],
-          function (err, users) {
+          async function (err, users) {
             if (err) return res.status(400).json({ errors: [err] });
+
             return res.status(200).json({ success: true, users });
           }
         );

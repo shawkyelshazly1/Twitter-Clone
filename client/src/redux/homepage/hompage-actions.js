@@ -1,5 +1,6 @@
 import axios from "axios";
 import { clearErrors, showErrors } from "../error/error-actions";
+import { useSelector } from "react-redux";
 import store from "../store";
 import * as homepageActionTypes from "./homepageActionTypes";
 
@@ -13,6 +14,7 @@ export const updateTweetCharsCount = (charsCount) => (dispatch) => {
 
 // load Top Followed Users
 export const getTFUs = () => (dispatch) => {
+  dispatch({ type: homepageActionTypes.LOADING_TFUS });
   axios
     .get("/api/users/topFollowed", config)
     .then((res) => {
@@ -48,7 +50,7 @@ export const loadTweets = () => (dispatch) => {
 };
 
 // Like Tweet
-export const likeTweet = (tweetId) => (dispatch) => {
+export const likeTweet = (tweetId, socket, userId) => (dispatch) => {
   const body = JSON.stringify({ tweetId });
   axios
     .post(`/api/tweets/${tweetId}/like`, body, config)
@@ -58,6 +60,8 @@ export const likeTweet = (tweetId) => (dispatch) => {
         type: homepageActionTypes.LIKE_TWEET_SUCCESS,
         payload: tweetId,
       });
+  
+      socket.emit("tweetLike", userId);
     })
     .catch((err) => {
       store.dispatch(showErrors(err.response.data.errors));
@@ -139,6 +143,40 @@ export const sendTweetIncludeMedia = (file, tweetData) => (dispatch) => {
     .catch((err) => {
       store.dispatch(showErrors(err.response.data.errors));
       dispatch({ type: homepageActionTypes.UPLOAD_MEDIA_FAIL });
+    });
+};
+
+// Get tweets by hashtag
+export const getHashtagTweets = (hashtagQuery) => (dispatch) => {
+  axios
+    .get(`/api/tweets/hashtag/${hashtagQuery}`, config)
+    .then((res) => {
+      store.dispatch(clearErrors());
+      dispatch({
+        type: homepageActionTypes.LOAD_HASHTAG_TWEETS_SUCCESS,
+        payload: res.data.tweets,
+      });
+    })
+    .catch((err) => {
+      store.dispatch(showErrors(err.response.data.errors));
+      dispatch({ type: homepageActionTypes.LOAD_HASHTAG_TWEETS_FAIL });
+    });
+};
+
+// get top hashtags
+export const getTopHashtags = () => (dispatch) => {
+  axios
+    .get(`/api/tweets/hashtags/top`, config)
+    .then((res) => {
+      store.dispatch(clearErrors());
+      dispatch({
+        type: homepageActionTypes.LOAD_TOP_HASHTAGS_SUCCESS,
+        payload: res.data.hashtags,
+      });
+    })
+    .catch((err) => {
+      store.dispatch(showErrors(err.response.data.errors));
+      dispatch({ type: homepageActionTypes.LOAD_TOP_HASHTAGS_FAIL });
     });
 };
 

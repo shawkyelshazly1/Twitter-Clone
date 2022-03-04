@@ -1,35 +1,13 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
-import { ReactComponent as LoadingComponent } from "../../loading.svg";
-import { loadUser } from "../../redux/auth/auth-actions";
-import {
-  getTFUs,
-  getTopHashtags,
-  loadTweets,
-} from "../../redux/homepage/hompage-actions";
-import store from "../../redux/store";
-import { loadFollowedUsers } from "../../redux/user/user-actions";
-import Tweet from "../smallComponents/Tweet";
-import TweetInput from "../smallComponents/TweetInput";
 
-export default function Homepage() {
-  const { isLoading } = useSelector((state) => state.auth);
-  const { loadingTweets, tweets } = useSelector((state) => state.homePage);
-
-  useEffect(() => {
-    store.dispatch(getTFUs());
-    store.dispatch(loadFollowedUsers());
-    store.dispatch(loadTweets());
-    store.dispatch(getTopHashtags());
-  }, []);
-
-  if (isLoading) return <LoadingComponent />;
-
+export default function Notifications() {
+  const { notifications } = useSelector((state) => state.notifications);
   return (
     <>
       <div className="flex justify-between items-center border-b px-4 py-3 sticky top-0 bg-white dark:bg-dim-900 border-l border-r border-gray-200 dark:border-gray-700">
         <h2 className="text-gray-800 dark:text-gray-100 font-bold font-sm">
-          Home
+          Notifications
         </h2>
 
         <div>
@@ -44,12 +22,9 @@ export default function Homepage() {
           </svg>
         </div>
       </div>
-      <TweetInput />
-      {loadingTweets ? (
-        <LoadingComponent />
-      ) : (
-        tweets.map((tweet) => <Tweet key={tweet.tweet._id} tweet={tweet} />)
-      )}
+      {notifications.map((notification) => (
+        <p key={notification}>{notification}</p>
+      ))}
     </>
   );
 }

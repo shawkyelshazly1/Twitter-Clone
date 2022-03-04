@@ -1,27 +1,27 @@
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
+import { useParams } from "react-router";
 import { ReactComponent as LoadingComponent } from "../../loading.svg";
-import { loadUser } from "../../redux/auth/auth-actions";
 import {
   getTFUs,
+  getHashtagTweets,
   getTopHashtags,
-  loadTweets,
 } from "../../redux/homepage/hompage-actions";
 import store from "../../redux/store";
 import { loadFollowedUsers } from "../../redux/user/user-actions";
 import Tweet from "../smallComponents/Tweet";
-import TweetInput from "../smallComponents/TweetInput";
 
-export default function Homepage() {
+export default function HashtagPage() {
   const { isLoading } = useSelector((state) => state.auth);
   const { loadingTweets, tweets } = useSelector((state) => state.homePage);
+  const params = useParams();
 
   useEffect(() => {
     store.dispatch(getTFUs());
     store.dispatch(loadFollowedUsers());
-    store.dispatch(loadTweets());
+    store.dispatch(getHashtagTweets(params.hashtagQuery));
     store.dispatch(getTopHashtags());
-  }, []);
+  }, [params.hashtagQuery]);
 
   if (isLoading) return <LoadingComponent />;
 
@@ -29,7 +29,7 @@ export default function Homepage() {
     <>
       <div className="flex justify-between items-center border-b px-4 py-3 sticky top-0 bg-white dark:bg-dim-900 border-l border-r border-gray-200 dark:border-gray-700">
         <h2 className="text-gray-800 dark:text-gray-100 font-bold font-sm">
-          Home
+          #{params.hashtagQuery}
         </h2>
 
         <div>
@@ -44,11 +44,19 @@ export default function Homepage() {
           </svg>
         </div>
       </div>
-      <TweetInput />
+
       {loadingTweets ? (
         <LoadingComponent />
       ) : (
-        tweets.map((tweet) => <Tweet key={tweet.tweet._id} tweet={tweet} />)
+        <>
+          {tweets.length !== 0 ? (
+            tweets.map((tweet) => <Tweet key={tweet.tweet._id} tweet={tweet} />)
+          ) : (
+            <div className="text-3xl text-black mt-10 pt-10">
+              <span>No results for "#{params.hashtagQuery}"</span>
+            </div>
+          )}{" "}
+        </>
       )}
     </>
   );

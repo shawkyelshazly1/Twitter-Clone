@@ -95,7 +95,7 @@ export const loadUserTweets = (userId, user_handler) => (dispatch) => {
 };
 
 // Like Tweet
-export const likeUserTweet = (tweetId) => (dispatch) => {
+export const likeUserTweet = (tweetId, socket, userId) => (dispatch) => {
   const body = JSON.stringify({ tweetId });
   axios
     .post(`/api/tweets/${tweetId}/like`, body, config)
@@ -105,6 +105,7 @@ export const likeUserTweet = (tweetId) => (dispatch) => {
         type: userActionTypes.LIKE_USER_TWEET_SUCCESS,
         payload: tweetId,
       });
+      socket.emit("tweetLike", userId);
     })
     .catch((err) => {
       store.dispatch(showErrors(err.response.data.errors));

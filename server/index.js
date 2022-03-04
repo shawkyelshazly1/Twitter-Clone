@@ -5,15 +5,31 @@ const express = require("express"),
   bodyParser = require("body-parser"),
   path = require("path"),
   helmet = require("helmet"),
-  cookieParser = require("cookie-parser");
+  cookieParser = require("cookie-parser"),
+  { connectedUsers } = require("./utils/connectedUseres");
 
 require("dotenv").config();
 
 // initializse express app object
 const app = express();
+const http = require("http").Server(app);
+
+//Adding Socket.io
+const io = require("./socketIOServer").listen(http);
+
+//  Adding user to connected list on connection
+
+
+// Attaching SocketIO instance to the app and can be accessed with req.app.io
+app.io = io;
+
+let originURI = "";
+process.env.NODE_ENV === "development"
+  ? (originURI = "http://localhost:3000")
+  : (originURI = true);
 
 // Adding dependencies to the app
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors({ origin: originURI, credentials: true }));
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -66,7 +82,7 @@ mongoose
   })
   .then((res) => {
     console.log(`MongoDB Connected Successfully.`);
-    app.listen(process.env.PORT || 5000, () => {
+    http.listen(process.env.PORT || 5000, () => {
       console.log(
         `Server started on port ${
           process.env.PORT || 5000

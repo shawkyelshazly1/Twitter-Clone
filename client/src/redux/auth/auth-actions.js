@@ -4,6 +4,7 @@ import * as authActionTypes from "./authActionTypes";
 import { clearErrors, showErrors } from "../error/error-actions";
 import { clearHomePage } from "../homepage/hompage-actions";
 import { clearUserInfo, loadUserInfo } from "../user/user-actions";
+import { setSocketIO } from "../notification/notification-actions";
 
 // Login user Action, sending axios post with data showing or clearing errors based on res or err
 export const loginUser = (data) => (dispatch) => {
@@ -65,6 +66,8 @@ export const loadUser = () => (dispatch) => {
       store.dispatch(clearErrors());
       store.dispatch(loadUserInfo(res.data));
       dispatch({ type: authActionTypes.USER_LOADED, payload: res.data });
+      store.dispatch(loadUserInfo(res.data));
+      store.dispatch(setSocketIO(res.data.user._id));
     })
     .catch((err) => {
       store.dispatch(showErrors(err.response.data.errors));

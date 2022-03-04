@@ -2,8 +2,11 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import UserBoxComponent from "../smallComponents/UserBoxComponent";
+import TopHashtag from "../smallComponents/TopHashtag";
 export default function RightMenu() {
-  const { top_followed } = useSelector((state) => state.homePage);
+  const { top_followed, topHashtags, loadingTFUs } = useSelector(
+    (state) => state.homePage
+  );
   return (
     <div className="hidden md:block w-290 lg:w-350 h-screen">
       <div className="flex flex-col fixed overflow-y-auto w-290 lg:w-350 h-screen">
@@ -34,30 +37,14 @@ export default function RightMenu() {
           <h1 className="text-gray-900 dark:text-white text-md font-bold p-3 border-b border-gray-200 dark:border-dim-200">
             What’s happening
           </h1>
-          <Link to={`/hashtag/${"FreePS5Monday"}`}>
-            <div className="text-blue-400 text-sm font-normal p-3 border-b border-gray-200 dark:border-dim-200 hover:bg-gray-100 dark:hover:bg-dim-300 cursor-pointer transition duration-350 ease-in-out">
-              <h2 className="font-bold text-md text-gray-800 dark:text-white">
-                #FreePS5Monday
-              </h2>
-              <p className="text-xs text-gray-400">29.7K Tweets</p>
-            </div>
-          </Link>
-          <Link to={`/hashtag/${"BTSonGMA"}`}>
-            <div className="text-blue-400 text-sm font-normal p-3 border-b border-gray-200 dark:border-dim-200 hover:bg-gray-100 dark:hover:bg-dim-300 cursor-pointer transition duration-350 ease-in-out">
-              <h2 className="font-bold text-md text-gray-800 dark:text-white">
-                #BTSonGMA
-              </h2>
-              <p className="text-xs text-gray-400">351K Tweets</p>
-            </div>
-          </Link>
-          <Link to={`/hashtag/${"AstraZeneca"}`}>
-            <div className="text-blue-400 text-sm font-normal p-3 border-b border-gray-200 dark:border-dim-200 hover:bg-gray-100 dark:hover:bg-dim-300 cursor-pointer transition duration-350 ease-in-out">
-              <h2 className="font-bold text-md text-gray-800 dark:text-white">
-                #AstraZeneca
-              </h2>
-              <p className="text-xs text-gray-400">52.7K Tweets</p>
-            </div>
-          </Link>
+          {topHashtags.length !== 0 ? (
+            topHashtags.map((hashtag) => (
+              <TopHashtag key={hashtag._id} hashtag={hashtag} />
+            ))
+          ) : (
+            <></>
+          )}
+
           <div className="text-blue-400 text-sm font-normal p-3 hover:bg-gray-100 dark:hover:bg-dim-300 cursor-pointer transition duration-350 ease-in-out">
             Show more
           </div>
@@ -68,22 +55,24 @@ export default function RightMenu() {
             Who to follow
           </h1>
 
-          {top_followed.map((user) => (
-            <UserBoxComponent key={user._id} user={user} />
-          ))}
-
-          <div className="border-b border-gray-200 dark:border-dim-200 p-4 max-w-sm w-full mx-auto">
-            <div className="animate-pulse flex space-x-4">
-              <div className="rounded-full bg-gray-400 h-12 w-12"></div>
-              <div className="flex-1 space-y-4 py-1">
-                <div className="h-4 bg-gray-400 rounded w-3/4"></div>
-                <div className="space-y-2">
-                  <div className="h-4 bg-gray-400 rounded"></div>
-                  <div className="h-4 bg-gray-400 rounded w-5/6"></div>
+          {loadingTFUs ? (
+            <div className="border-b border-gray-200 dark:border-dim-200 p-4 max-w-sm w-full mx-auto">
+              <div className="animate-pulse flex space-x-4">
+                <div className="rounded-full bg-gray-400 h-12 w-12"></div>
+                <div className="flex-1 space-y-4 py-1">
+                  <div className="h-4 bg-gray-400 rounded w-3/4"></div>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gray-400 rounded"></div>
+                    <div className="h-4 bg-gray-400 rounded w-5/6"></div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          ) : (
+            top_followed.map((user) => (
+              <UserBoxComponent key={user._id} user={user} />
+            ))
+          )}
 
           <div className="text-blue-400 text-sm font-normal p-3 hover:bg-gray-100 dark:hover:bg-dim-300 cursor-pointer transition duration-350 ease-in-out">
             Show more

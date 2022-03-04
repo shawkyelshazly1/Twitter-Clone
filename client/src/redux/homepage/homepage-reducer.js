@@ -4,10 +4,12 @@ const initialState = {
   top_followed: [],
   tweets: [],
   loadingTweets: false,
+  loadingTFUs: false,
   tweetCharsCount: 0,
   uploadedMediaURI: "",
   mediaPreviewURI: "",
   mediaFile: "",
+  topHashtags: [],
 };
 
 const homepageReducer = function (state = initialState, action) {
@@ -16,12 +18,15 @@ const homepageReducer = function (state = initialState, action) {
       return {
         ...state,
         top_followed: [],
+        loadingTFUs: false,
       };
-
+    case homepageActionTypes.LOADING_TFUS:
+      return { ...state, loadingTFUs: true };
     case homepageActionTypes.LOAD_TFUS_SUCCESS:
       return {
         ...state,
         top_followed: action.payload,
+        loadingTFUs: false,
       };
 
     case homepageActionTypes.CLEAR_HOMEPAGE:
@@ -35,9 +40,11 @@ const homepageReducer = function (state = initialState, action) {
       return { ...state, loadingTweets: true };
 
     case homepageActionTypes.LOADING_TWEETS_SUCCESS:
+    case homepageActionTypes.LOAD_HASHTAG_TWEETS_SUCCESS:
       return { ...state, loadingTweets: false, tweets: action.payload };
 
     case homepageActionTypes.LOADING_TWEETS_FAIL:
+    case homepageActionTypes.LOAD_HASHTAG_TWEETS_FAIL:
       return { ...state, loadingTweets: false, tweets: [] };
 
     case homepageActionTypes.UPDATE_TWEET_CHARS_COUNT:
@@ -45,6 +52,10 @@ const homepageReducer = function (state = initialState, action) {
         ...state,
         tweetCharsCount: action.payload,
       };
+    case homepageActionTypes.LOAD_TOP_HASHTAGS_SUCCESS:
+      return { ...state, topHashtags: action.payload };
+    case homepageActionTypes.LOAD_TOP_HASHTAGS_FAIL:
+      return { ...state, topHashtags: [] };
 
     case homepageActionTypes.CLEAR_MEDIA:
       return {

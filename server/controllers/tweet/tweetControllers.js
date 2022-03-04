@@ -4,7 +4,8 @@ const Tweet = require("../../models/tweet"),
   Follower = require("../../models/followers"),
   twitterTextUtil = require("twitter-text"),
   User = require("../../models/user"),
-  TweetLike = require("../../models/tweetLike");
+  TweetLike = require("../../models/tweetLike"),
+  Hashtag = require("../../models/hashtag");
 
 //Retrieving tweets for the people the user following, userId from req.user._id
 exports.getTweetsFeed = async (req, res, next) => {
@@ -241,6 +242,14 @@ exports.addTweet = async (req, res, next) => {
     media,
   }).save(async function (err, savedTweet) {
     if (err) return res.status(400).json({ errors: [err] });
+    // Create hashtag
+    savedTweet.entities.hashtags.forEach(async (hashtag) => {
+      let hash = await Hashtag.findOneAndUpdate(
+        { content: hashtag, tweetIds: { $ne: savedTweet._id } },
+        { $push: { tweetIds: savedTweet._id } },
+        { new: true, upsert: true }
+      );
+    });
 
     const tweet = await Tweet.aggregate(
       [
@@ -429,4 +438,146 @@ exports.deleteTweet = async (req, res, next) => {
     .catch((err) => {
       if (err) return res.status(400).json({ errors: [err] });
     });
+};
+
+// Get tweets by hashtag
+exports.getTweetsByHashtag = async (req, res, next) => {
+  const { hashtagQuery } = req.params;
+  const tweets = await Tweet.aggregate(
+    [
+      {
+        $project: {
+          tweet: "$$ROOT",
+          hashtagPresent: {
+            $gt: [
+              {
+                $size: {
+                  $setIntersection: ["$entities.hashtags", [hashtagQuery]],
+                },
+              },
+              0,
+            ],
+          },
+        },
+      },
+      {
+        $match: { $expr: { $eq: ["$hashtagPresent", true] } },
+      },
+      {
+        $project: {
+          _id: 0,
+          hashtagPresent: 0,
+        },
+      },
+      { $sort: { "tweet.createdAt": -1 } },
+      {
+        $lookup: {
+          let: {
+            searchId: { $toString: "$tweet._id" },
+          },
+          from: "tweetlikes",
+          pipeline: [
+            { $match: { $expr: { $eq: ["$tweetId", "$$searchId"] } } },
+            { $count: "likesCount" },
+          ],
+          as: "tweetLikes",
+        },
+      },
+
+      {
+        $set: {
+          "tweet.tweetStats": {
+            $cond: [
+              { $eq: ["$tweetLikes", []] },
+              { likesCount: 0 },
+              { $first: "$tweetLikes" },
+            ],
+          },
+        },
+      },
+      {
+        $lookup: {
+          let: {
+            userSearchId: { $toString: req.user._id },
+            searchId: { $toString: "$tweet._id" },
+          },
+          from: "tweetlikes",
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$tweetId", "$$searchId"] },
+                    { $eq: ["$userId", "$$userSearchId"] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "liked",
+        },
+      },
+      {
+        $set: {
+          isLiked: {
+            $cond: [{ $eq: ["$liked", []] }, false, true],
+          },
+        },
+      },
+      {
+        $set: {
+          "tweet.isLiked": "$isLiked",
+        },
+      },
+      {
+        $lookup: {
+          let: { searchId: { $toObjectId: "$tweet.authorId" } },
+          from: "users",
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$searchId"] } } },
+            {
+              $project: {
+                password: 0,
+                dateOfBirth: 0,
+                gender: 0,
+                createdAt: 0,
+                updatedAt: 0,
+              },
+            },
+          ],
+          as: "authorInfo",
+        },
+      },
+      {
+        $addFields: { authorInfo: { $first: "$authorInfo" } },
+      },
+      {
+        $project: {
+          _id: 0,
+          tweetLikes: 0,
+          isLiked: 0,
+          liked: 0,
+        },
+      },
+    ],
+    function (err, tweets) {
+      if (err) return res.status(400).json({ errors: [err] });
+      return res.status(200).json({ success: true, tweets });
+    }
+  );
+};
+
+// Get Top hashtags
+exports.getTopHashtags = async (req, res, next) => {
+  const hashtags = await Hashtag.aggregate(
+    [
+      { $project: { _id: 1, content: 1, tweetsCount: { $size: "$tweetIds" } } },
+      { $sort: { tweetsCount: -1 } },
+      { $limit: 3 },
+    ],
+    function (err, hashtags) {
+      if (err) return res.status(400).json({ errors: [err] });
+      return res.status(200).json({ success: true, hashtags });
+    }
+  );
 };

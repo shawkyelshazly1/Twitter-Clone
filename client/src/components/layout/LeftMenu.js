@@ -1,10 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { addNotification } from "../../redux/notification/notification-actions";
+import store from "../../redux/store";
 import MainDropDown from "../smallComponents/MainDropdown";
 
 export default function LeftMenu() {
   const { user } = useSelector((state) => state.auth);
+  const { socket } = useSelector((state) => state.notifications);
+  const { notifications } = useSelector((state) => state.notifications);
+
+  useEffect(() => {
+    if (socket !== "")
+      socket.on("likedTweet", (msg) => {
+        store.dispatch(addNotification(msg));
+      });
+  }, [socket]);
 
   return (
     <div className="w-68 xs:w-88 xl:w-275 h-screen">
@@ -58,7 +69,7 @@ export default function LeftMenu() {
           </Link>
 
           <Link
-            to="#"
+            to="/notifications"
             className="flex items-center justify-center xl:justify-start text-gray-800 dark:text-white hover:text-blue-400 dark:hover:text-blue-400 mb-8 transition duration-350 ease-in-out"
           >
             <svg fill="currentColor" viewBox="0 0 24 24" className="h-6 w-6">
@@ -70,7 +81,14 @@ export default function LeftMenu() {
               ></path>
             </svg>
             <span className="hidden xl:block ml-4 font-bold text-md">
-              Notifications
+              Notifications{" "}
+              {notifications.length > 0 ? (
+                <span className="rounded-lg bg-red-500 p-1 text-white">
+                  {notifications.length}
+                </span>
+              ) : (
+                ""
+              )}
             </span>
           </Link>
 

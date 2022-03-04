@@ -10,6 +10,8 @@ const router = require("express").Router(),
     getUserTweets,
     disLikeTweet,
     likeTweet,
+    getTweetsByHashtag,
+    getTopHashtags,
   } = require("../../controllers/tweet/tweetControllers");
 
 //Retrieving tweets for the people the user following
@@ -29,5 +31,11 @@ router.post("/:tweetId/like", validateCookieToken, likeTweet);
 
 // DisLike Tweet
 router.post("/:tweetId/dislike", validateCookieToken, disLikeTweet);
+
+//get tweets by hashtag
+router.get("/hashtag/:hashtagQuery", validateCookieToken, getTweetsByHashtag);
+
+// get top hashtags
+router.get("/hashtags/top", validateCookieToken, getTopHashtags);
 
 module.exports = router;

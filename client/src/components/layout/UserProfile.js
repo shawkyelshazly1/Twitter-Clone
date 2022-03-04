@@ -3,10 +3,14 @@ import { useParams } from "react-router";
 import { useSelector } from "react-redux";
 import store from "../../redux/store";
 import { Navigate } from "react-router-dom";
-import { loadUserProfile } from "../../redux/user/user-actions";
+import {
+  loadFollowedUsers,
+  loadUserProfile,
+} from "../../redux/user/user-actions";
 import { ReactComponent as LoadingComponent } from "../../loading.svg";
 import s from "underscore.string";
 import UserTweet from "../smallComponents/UserTweet";
+import { getTFUs, getTopHashtags } from "../../redux/homepage/hompage-actions";
 
 export default function UserProfile() {
   const { loadingUserProfile, loadedUser, userTweets, loadingUserTweets } =
@@ -18,7 +22,10 @@ export default function UserProfile() {
 
   useEffect(() => {
     store.dispatch(loadUserProfile(params.user_handler));
-  }, [params]);
+    store.dispatch(getTFUs());
+    store.dispatch(loadFollowedUsers());
+    store.dispatch(getTopHashtags());
+  }, [params.user_handler]);
 
   if (loadingUserProfile) return <LoadingComponent />;
 

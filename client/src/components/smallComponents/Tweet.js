@@ -4,8 +4,33 @@ import { Link } from "react-router-dom";
 import store from "../../redux/store";
 import { likeTweet, disLikeTweet } from "../../redux/homepage/hompage-actions";
 import { format, parseISO } from "date-fns";
+import { useSelector } from "react-redux";
+const reactStringReplace = require("react-string-replace");
 
 export default function Tweet({ tweet }) {
+  const { socket } = useSelector((state) => state.notifications);
+  //Replacing hashtags with Links to hashtag page
+  let adjustedContent = reactStringReplace(
+    tweet.tweet.content,
+    /#(\w+)/g,
+    (match, i) => (
+      <Link key={match + i} to={`/hashtag/${match}`} className="text-blue-500">
+        #{match}
+      </Link>
+    )
+  );
+
+  // Replacing mentions with Link to profile
+  adjustedContent = reactStringReplace(
+    adjustedContent,
+    /@(\w+)/g,
+    (match, i) => (
+      <Link key={match + i} to={`/${match}`} className="text-blue-700">
+        @{match}
+      </Link>
+    )
+  );
+
   return (
     <div className="border-b border-gray-200 dark:border-dim-200 hover:bg-gray-100 dark:hover:bg-dim-300 cursor-pointer transition duration-350 ease-in-out pb-4 border-l border-r">
       <div className="flex flex-shrink-0 p-4 pb-0">
@@ -47,7 +72,7 @@ export default function Tweet({ tweet }) {
       </div>
       <div className="pl-16">
         <p className="text-base width-auto font-medium text-gray-800 dark:text-white flex-shrink">
-          {tweet.tweet.content}
+          {adjustedContent}
         </p>
 
         {tweet.tweet.media !== "" ? (
@@ -101,7 +126,9 @@ export default function Tweet({ tweet }) {
                 ) : (
                   <svg
                     onClick={() => {
-                      store.dispatch(likeTweet(tweet.tweet._id));
+                      store.dispatch(
+                        likeTweet(tweet.tweet._id, socket, tweet.authorInfo._id)
+                      );
                     }}
                     viewBox="0 0 24 24"
                     fill="currentColor"
