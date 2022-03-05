@@ -14,6 +14,10 @@ import { ReactComponent as LoadingComponent } from "../../loading.svg";
 import s from "underscore.string";
 import UserTweet from "../smallComponents/UserTweet";
 import { getTFUs, getTopHashtags } from "../../redux/homepage/hompage-actions";
+import {
+  clearErrors,
+  clearSuccessAlert,
+} from "../../redux/error/error-actions";
 
 export default function UserProfile() {
   const { socket } = useSelector((state) => state.notifications);
@@ -41,6 +45,8 @@ export default function UserProfile() {
   };
 
   useEffect(() => {
+    store.dispatch(clearSuccessAlert());
+    store.dispatch(clearErrors());
     store.dispatch(loadUserProfile(params.user_handler));
     store.dispatch(getTFUs());
     store.dispatch(loadFollowedUsers());

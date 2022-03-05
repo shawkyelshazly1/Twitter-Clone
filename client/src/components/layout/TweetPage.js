@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import { Link, Navigate } from "react-router-dom";
 import UserTweet from "../smallComponents/UserTweet";
 import SpecificTweet from "../smallComponents/SpecificTweet";
+import { clearErrors, clearSuccessAlert } from "../../redux/error/error-actions";
 
 export default function TweetPage() {
   const { loadingSpecificTWeet, tweetData } = useSelector(
@@ -15,6 +16,8 @@ export default function TweetPage() {
   const params = useParams();
 
   useEffect(() => {
+    store.dispatch(clearSuccessAlert());
+    store.dispatch(clearErrors());
     store.dispatch(getTWeet(params.tweetId));
   }, [params.tweetId]);
 

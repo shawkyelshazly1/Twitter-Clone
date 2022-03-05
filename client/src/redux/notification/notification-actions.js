@@ -3,11 +3,10 @@ import { io } from "socket.io-client";
 
 export const setSocketIO = (user) => (dispatch) => {
   let socket = "";
-  if (process.env.REACT_APP_NODE_ENV === "development") {
-    socket = io("http://localhost:5000"); // for developement
-  } else {
-    socket = io("https://twitter-clone-v1-0.herokuapp.com/"); // for production
-  }
+
+  // socket = io("http://localhost:5000"); // for developement
+
+  socket = io("https://twitter-clone-v1-0.herokuapp.com/"); // for production
 
   dispatch({ type: notificationActionTypes.SET_SOCKET, payload: socket });
   socket.emit("connectedAddUser", user);

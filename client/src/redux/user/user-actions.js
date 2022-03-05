@@ -89,6 +89,7 @@ export const loadUserProfile = (user_handler) => (dispatch) => {
       store.dispatch(loadUserTweets(res.data.user._id, user_handler));
     })
     .catch((err) => {
+      console.log(err.response.data);
       store.dispatch(showErrors(err.response.data.errors));
       dispatch({ type: userActionTypes.LOAD_USER_PROFILE_FAIL });
     });

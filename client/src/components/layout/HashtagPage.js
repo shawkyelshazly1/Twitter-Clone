@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { ReactComponent as LoadingComponent } from "../../loading.svg";
+import { clearErrors, clearSuccessAlert } from "../../redux/error/error-actions";
 import {
   getTFUs,
   getHashtagTweets,
@@ -17,6 +18,8 @@ export default function HashtagPage() {
   const params = useParams();
 
   useEffect(() => {
+    store.dispatch(clearSuccessAlert());
+    store.dispatch(clearErrors());
     store.dispatch(getTFUs());
     store.dispatch(loadFollowedUsers());
     store.dispatch(getHashtagTweets(params.hashtagQuery));

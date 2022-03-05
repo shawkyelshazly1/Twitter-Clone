@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
+import { clearErrors, clearSuccessAlert } from "../../redux/error/error-actions";
 import { markNotificationsAsRead } from "../../redux/notification/notification-actions";
 import store from "../../redux/store";
 import Notification from "../smallComponents/Notification";
@@ -8,6 +9,8 @@ export default function Notifications() {
   const { notifications } = useSelector((state) => state.notifications);
   useEffect(() => {
     return () => {
+      store.dispatch(clearSuccessAlert());
+    store.dispatch(clearErrors());
       store.dispatch(markNotificationsAsRead());
     };
   }, []);

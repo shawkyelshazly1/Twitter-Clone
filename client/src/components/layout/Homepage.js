@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { ReactComponent as LoadingComponent } from "../../loading.svg";
 import { loadUser } from "../../redux/auth/auth-actions";
+import { clearErrors, clearSuccessAlert } from "../../redux/error/error-actions";
 import {
   getTFUs,
   getTopHashtags,
@@ -17,6 +18,8 @@ export default function Homepage() {
   const { loadingTweets, tweets } = useSelector((state) => state.homePage);
 
   useEffect(() => {
+    store.dispatch(clearSuccessAlert());
+    store.dispatch(clearErrors());
     store.dispatch(getTFUs());
     store.dispatch(loadFollowedUsers());
     store.dispatch(loadTweets());

@@ -4,6 +4,8 @@ import * as errorActionTypes from "./errorActionTypes";
 const initialState = {
   isError: false,
   error_messages: [],
+  isSuccessAlert: false,
+  successAlertMessage: "",
 };
 
 // initializing the errors reducer {show errors, clear errors } actions
@@ -21,7 +23,14 @@ const errorReducer = function (state = initialState, action) {
         isError: false,
         error_messages: [],
       };
-
+    case errorActionTypes.GET_SUCCESS_ALERT:
+      return {
+        ...state,
+        isSuccessAlert: true,
+        successAlertMessage: action.payload,
+      };
+    case errorActionTypes.CLEAR_SUCCESS_ALERT:
+      return { ...state, isSuccessAlert: false, successAlertMessage: "" };
     default:
       return { ...state };
   }

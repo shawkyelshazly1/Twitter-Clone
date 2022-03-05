@@ -55,11 +55,17 @@ app.use(
 // Requiring Routes
 const userAuthRouter = require("./routes/user/auth"),
   userRouter = require("./routes/user/user"),
-  tweetRouter = require("./routes/tweet/tweet");
+  tweetRouter = require("./routes/tweet/tweet"),
+  messageRouter = require("./routes/message/message"),
+  conversationRouter = require("./routes/message/conversation");
 
 // Adding user routes to express app
 app.use("/api/users", userAuthRouter);
 app.use("/api/users", userRouter);
+
+// Adding Chat Router
+app.use("/api/conversations", conversationRouter);
+app.use("/api/messages", messageRouter);
 
 // Adding tweet routes to express app
 app.use("/api/tweets", tweetRouter);

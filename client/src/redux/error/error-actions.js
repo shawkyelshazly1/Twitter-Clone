@@ -9,3 +9,11 @@ export const showErrors = (errors) => (dispatch) => {
 export const clearErrors = () => (dispatch) => {
   dispatch({ type: errorActionTypes.CLEAR_ERRORS });
 };
+
+export const showSuccessAlert = (message) => (dispatch) => {
+  dispatch({ type: errorActionTypes.GET_SUCCESS_ALERT, payload: message });
+};
+
+export const clearSuccessAlert = () => (dispatch) => {
+  dispatch({ type: errorActionTypes.CLEAR_SUCCESS_ALERT });
+};

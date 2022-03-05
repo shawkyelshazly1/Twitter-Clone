@@ -1,7 +1,11 @@
 import axios from "axios";
 import store from "../store";
 import * as authActionTypes from "./authActionTypes";
-import { clearErrors, showErrors } from "../error/error-actions";
+import {
+  clearErrors,
+  showErrors,
+  showSuccessAlert,
+} from "../error/error-actions";
 import { clearHomePage } from "../homepage/hompage-actions";
 import { clearUserInfo, loadUserInfo } from "../user/user-actions";
 import { setSocketIO } from "../notification/notification-actions";
@@ -32,6 +36,7 @@ export const registerUser = (data) => (dispatch) => {
     .then((res) => {
       store.dispatch(clearErrors());
       dispatch({ type: authActionTypes.REGISTER_SUCCESS });
+      store.dispatch(showSuccessAlert("Registered Successfully."));
     })
     .catch((err) => {
       store.dispatch(showErrors(err.response.data.errors));
