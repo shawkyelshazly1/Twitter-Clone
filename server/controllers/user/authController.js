@@ -35,7 +35,7 @@ exports.loginUser = async (req, res, next) => {
           .cookie("token", token, {
             httpOnly: true,
             sameSite: "none",
-            secure: false,
+            secure: true,
           })
           .json({ success: true, message: "You're Logged In." });
       } else {
