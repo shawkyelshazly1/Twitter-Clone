@@ -51,6 +51,28 @@ export const followUser = (user_id, user_handler) => (dispatch) => {
     });
 };
 
+export const unFollowUser = (user_id, user_handler) => (dispatch) => {
+  const data = {
+    followingId: user_id,
+  };
+
+  const body = JSON.stringify(data);
+  axios
+    .post(`/api/users/${user_handler}/unfollow`, body, config)
+    .then((res) => {
+      store.dispatch(clearErrors());
+
+      dispatch({
+        type: userActionTypes.UNFOLLOW_USER_SUCCESS,
+        payload: { user: user_id },
+      });
+    })
+    .catch((err) => {
+      store.dispatch(showErrors(err.response.data.errors));
+      dispatch({ type: userActionTypes.UNFOLLOW_USER_FAIL });
+    });
+};
+
 // Load user profile
 export const loadUserProfile = (user_handler) => (dispatch) => {
   dispatch({ type: userActionTypes.LOADING_USER_PROFILE });

@@ -18,15 +18,24 @@ const userReducer = function (state = initialState, action) {
       };
 
     case userActionTypes.FOLLOW_USER_SUCCESS:
-      let users = [];
       if (state.followedUsers.includes(action.payload.user)) {
         return { ...state };
       } else {
-        users = state.followedUsers.filter(
-          (user) => user !== action.payload.user
-        );
-        return { ...state, followedUsers: users };
+        const users = state.followedUsers;
+        users.push(action.payload.user);
+        return {
+          ...state,
+          followedUsers: users,
+        };
       }
+
+    case userActionTypes.UNFOLLOW_USER_SUCCESS:
+      return {
+        ...state,
+        followedUsers: state.followedUsers.filter(
+          (user) => user !== action.payload.user
+        ),
+      };
 
     case userActionTypes.LIKE_USER_TWEET_SUCCESS:
       let tweetId = action.payload;
@@ -58,7 +67,7 @@ const userReducer = function (state = initialState, action) {
           tweet._id === Id ? disLikedTweet : tweet
         ),
       };
-    case userActionTypes.UNFOLLOW_USER_SUCCESS:
+
     case userActionTypes.DISLIKE_USER_TWEET_FAIL:
     case userActionTypes.LIKE_USER_TWEET_FAIL:
       return { ...state };

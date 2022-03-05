@@ -22,16 +22,19 @@ export default function UserTweet({ tweet }) {
     )
   );
 
-  // Replacing mentions with Link to profile
-  adjustedContent = reactStringReplace(
-    adjustedContent,
-    /@(\w+)/g,
-    (match, i) => (
-      <Link key={match + i} to={`/${match}`} className="text-blue-700">
-        @{match}
-      </Link>
-    )
-  );
+  if (tweet.entities.mentions.length > 0) {
+    tweet.entities.mentions.forEach((mention) => {
+      adjustedContent = reactStringReplace(
+        adjustedContent,
+        `@${mention}`,
+        (match, i) => (
+          <Link key={match + i} to={`/${mention}`} className="text-blue-700">
+            {match}
+          </Link>
+        )
+      );
+    });
+  }
   return (
     <div className="border-b border-gray-200 dark:border-dim-200 hover:bg-gray-100 dark:hover:bg-dim-300 cursor-pointer transition duration-350 ease-in-out pb-4 border-l border-r">
       <div className="flex flex-shrink-0 p-4 pb-0">

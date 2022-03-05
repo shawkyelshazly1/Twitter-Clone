@@ -5,7 +5,7 @@ const router = require("express").Router(),
     unFollowUser,
     getTopFollowedUsers,
     getFollowedUsers,
-    getUserProfile
+    getUserProfile,
   } = require("../../controllers/user/userController"),
   { validateCookieToken } = require("../../utils/middlewares");
 
@@ -16,7 +16,7 @@ router.get("/profile", validateCookieToken, getCurrentUserProfile);
 router.post("/:user_handler/follow", validateCookieToken, followUser);
 
 // UnFollow Specific user {takes id to follow in payload as "followingId"}
-router.delete("/:user_handler/unfollow", validateCookieToken, unFollowUser);
+router.post("/:user_handler/unfollow", validateCookieToken, unFollowUser);
 
 // Get Highest Followed Users
 router.get("/topFollowed", validateCookieToken, getTopFollowedUsers);

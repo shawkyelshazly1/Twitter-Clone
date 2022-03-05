@@ -3,9 +3,12 @@ import { useParams } from "react-router";
 import { useSelector } from "react-redux";
 import store from "../../redux/store";
 import { Navigate } from "react-router-dom";
+import _ from "lodash";
 import {
+  followUser,
   loadFollowedUsers,
   loadUserProfile,
+  unFollowUser,
 } from "../../redux/user/user-actions";
 import { ReactComponent as LoadingComponent } from "../../loading.svg";
 import s from "underscore.string";
@@ -17,6 +20,8 @@ export default function UserProfile() {
     useSelector((state) => state.user);
 
   const { user } = useSelector((state) => state.auth);
+
+  const { followedUsers } = useSelector((state) => state.user);
 
   const params = useParams();
 
@@ -80,11 +85,35 @@ export default function UserProfile() {
                 </button>
               </div>
             ) : (
-              <div className="flex flex-col text-right">
-                <button className="flex justify-center  max-h-max whitespace-nowrap focus:outline-none  focus:ring  rounded max-w-max border bg-transparent border-blue-500 text-blue-500 hover:border-blue-800 hover:border-blue-800 flex items-center hover:shadow-lg font-bold py-2 px-4 rounded-full mr-0 ml-auto">
-                  Follow
-                </button>
-              </div>
+              <>
+                {_.indexOf(followedUsers, loadedUser._id) > -1 ? (
+                  <div className="flex flex-col text-right ">
+                    <button
+                      onClick={() => {
+                        store.dispatch(
+                          unFollowUser(loadedUser._id, loadedUser.username)
+                        );
+                      }}
+                      className="flex bg-red-500 text-white border-red-400 justify-center  max-h-max whitespace-nowrap focus:outline-none  focus:ring   max-w-max border   hover:border-red-800 flex items-center hover:shadow-lg font-bold py-2 px-4 rounded-full mr-0 ml-auto"
+                    >
+                      UnFollow
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col text-right">
+                    <button
+                      onClick={() => {
+                        store.dispatch(
+                          followUser(loadedUser._id, loadedUser.username)
+                        );
+                      }}
+                      className="flex justify-center  max-h-max whitespace-nowrap focus:outline-none  focus:ring  rounded max-w-max border bg-transparent border-blue-500 text-blue-500 hover:border-blue-800 hover:border-blue-800 flex items-center hover:shadow-lg font-bold py-2 px-4 rounded-full mr-0 ml-auto"
+                    >
+                      Follow
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
 

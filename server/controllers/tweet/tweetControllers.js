@@ -229,6 +229,17 @@ exports.addTweet = async (req, res, next) => {
 
   const hashtags = twitterTextUtil.extractHashtags(content);
   const mentions = twitterTextUtil.extractMentions(content);
+  let correctMentions = [];
+
+  const users = await User.find({ username: { $in: mentions } }).then(
+    (users) => {
+      if (users.length > 0) {
+        users.forEach((user) => {
+          correctMentions.push(user.username);
+        });
+      }
+    }
+  );
 
   //   creating new tweet
   let tweet = await Tweet({
@@ -237,7 +248,7 @@ exports.addTweet = async (req, res, next) => {
     content,
     entities: {
       hashtags,
-      mentions,
+      mentions: correctMentions,
     },
     media,
   }).save(async function (err, savedTweet) {

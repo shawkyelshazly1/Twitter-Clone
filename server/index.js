@@ -19,7 +19,6 @@ const io = require("./socketIOServer").listen(http);
 
 //  Adding user to connected list on connection
 
-
 // Attaching SocketIO instance to the app and can be accessed with req.app.io
 app.io = io;
 
@@ -37,7 +36,11 @@ app.use(
   helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'"],
-      connectSrc: ["'self'", "https://api.cloudinary.com"],
+      connectSrc: [
+        "'self'",
+        "https://api.cloudinary.com",
+        "http://localhost:5000/socket.io/",
+      ],
       frameSrc: ["'self'"],
       childSrc: ["'self'"],
       scriptSrc: ["'self'"],
