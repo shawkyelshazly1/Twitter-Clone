@@ -14,6 +14,9 @@ const notificationReducer = function (state = initialState, action) {
         ...state,
         notifications: [...state.notifications, action.payload],
       };
+
+    case notificationActionTypes.MARK_NOTIFICATIONS_AS_READ:
+      return { ...state, notifications: [] };
     default:
       return { ...state };
   }

@@ -1,8 +1,16 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
+import { markNotificationsAsRead } from "../../redux/notification/notification-actions";
+import store from "../../redux/store";
 
 export default function Notifications() {
   const { notifications } = useSelector((state) => state.notifications);
+  useEffect(() => {
+    return () => {
+      store.dispatch(markNotificationsAsRead());
+    };
+  }, []);
+
   return (
     <>
       <div className="flex justify-between items-center border-b px-4 py-3 sticky top-0 bg-white dark:bg-dim-900 border-l border-r border-gray-200 dark:border-gray-700">
