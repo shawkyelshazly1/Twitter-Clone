@@ -1,15 +1,21 @@
 import React from "react";
-import s from "underscore.string";
-import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import store from "../../redux/store";
-import { disLikeUserTweet, likeUserTweet } from "../../redux/user/user-actions";
+import { Link } from "react-router-dom";
+import s from "underscore.string";
 import { format, parseISO } from "date-fns";
+import store from "../../redux/store";
+import {
+  disLikeSpecificTweet,
+  disLikeTweet,
+  likeSpecificTweet,
+} from "../../redux/homepage/hompage-actions";
 const reactStringReplace = require("react-string-replace");
 
-export default function UserTweet({ tweet }) {
-  const { loadedUser, userInfo } = useSelector((state) => state.user);
+export default function SpecificTweet({ tweet }) {
   const { socket } = useSelector((state) => state.notifications);
+  const { userInfo } = useSelector((state) => state.user);
+
+  console.log(tweet);
 
   //Replacing hashtags with Links to hashtag page
   let adjustedContent = reactStringReplace(
@@ -22,6 +28,7 @@ export default function UserTweet({ tweet }) {
     )
   );
 
+  // Replacing mentions with Link to profile
   if (tweet.entities.mentions.length > 0) {
     tweet.entities.mentions.forEach((mention) => {
       adjustedContent = reactStringReplace(
@@ -35,25 +42,26 @@ export default function UserTweet({ tweet }) {
       );
     });
   }
+
   return (
     <div className="border-b border-gray-200 dark:border-dim-200 hover:bg-gray-100 dark:hover:bg-dim-300 cursor-pointer transition duration-350 ease-in-out pb-4 border-l border-r">
       <div className="flex flex-shrink-0 p-4 pb-0">
         <Link
-          to={`/${loadedUser.username}`}
+          to={`/${tweet.authorInfo.username}`}
           className="flex-shrink-0 group block"
         >
           <div className="flex items-top">
             <div>
               <img
                 className="inline-block h-9 w-9 rounded-full"
-                src={`${loadedUser.photo}`}
+                src={`${tweet.authorInfo.photo}`}
                 alt=""
               />
             </div>
             <div className="ml-3">
               <p className="flex items-center text-base leading-6 font-medium text-gray-800 dark:text-white">
-                {`${s.capitalize(loadedUser.firstName)}  ${s.capitalize(
-                  loadedUser.lastName
+                {`${s.capitalize(tweet.authorInfo.firstName)}  ${s.capitalize(
+                  tweet.authorInfo.lastName
                 )}`}
                 <svg
                   viewBox="0 0 24 24"
@@ -66,7 +74,7 @@ export default function UserTweet({ tweet }) {
                   </g>
                 </svg>
                 <span className="ml-1 text-sm leading-5 font-medium text-gray-400 group-hover:text-gray-300 transition ease-in-out duration-150">
-                  @{loadedUser.username} .{" "}
+                  @{tweet.authorInfo.username} .{" "}
                   {format(parseISO(tweet.createdAt, 1), "MMM d")}
                 </span>
               </p>
@@ -90,7 +98,7 @@ export default function UserTweet({ tweet }) {
         <div className="flex">
           <div className="w-full">
             <div className="flex items-center">
-              <div className="flex-1 flex items-center text-gray-800 dark:text-white text-xs text-gray-400 hover:text-blue-400 dark:hover:text-blue-400 transition duration-350 ease-in-out">
+              <div className="flex-1 flex items-center text-gray-800 dark:text-white text-xs  hover:text-blue-400 dark:hover:text-blue-400 transition duration-350 ease-in-out">
                 <svg
                   viewBox="0 0 24 24"
                   fill="currentColor"
@@ -102,7 +110,7 @@ export default function UserTweet({ tweet }) {
                 </svg>
                 12.3 k
               </div>
-              <div className="flex-1 flex items-center text-gray-800 dark:text-white text-xs text-gray-400 hover:text-green-400 dark:hover:text-green-400 transition duration-350 ease-in-out">
+              <div className="flex-1 flex items-center text-gray-800 dark:text-white text-xs hover:text-green-400 dark:hover:text-green-400 transition duration-350 ease-in-out">
                 <svg
                   viewBox="0 0 24 24"
                   fill="currentColor"
@@ -114,11 +122,11 @@ export default function UserTweet({ tweet }) {
                 </svg>
                 14 k
               </div>
-              <div className="flex-1 flex items-center text-gray-800 dark:text-white text-xs text-gray-400 hover:text-red-600 dark:hover:text-red-600 transition duration-350 ease-in-out">
+              <div className="flex-1 flex items-center text-gray-800 dark:text-white text-xs  hover:text-red-600 dark:hover:text-red-600 transition duration-350 ease-in-out">
                 {tweet.isLiked ? (
                   <svg
                     onClick={() => {
-                      store.dispatch(disLikeUserTweet(tweet._id));
+                      store.dispatch(disLikeSpecificTweet(tweet._id));
                     }}
                     viewBox="0 -17 100 100"
                     fill="#E81C4F"
@@ -131,7 +139,12 @@ export default function UserTweet({ tweet }) {
                   <svg
                     onClick={() => {
                       store.dispatch(
-                        likeUserTweet(tweet._id, socket, loadedUser, userInfo)
+                        likeSpecificTweet(
+                          tweet._id,
+                          socket,
+                          tweet.authorInfo,
+                          userInfo
+                        )
                       );
                     }}
                     viewBox="0 0 24 24"
@@ -143,11 +156,12 @@ export default function UserTweet({ tweet }) {
                     </g>
                   </svg>
                 )}
+
                 {tweet.tweetStats.likesCount === "undefined"
                   ? 0
                   : tweet.tweetStats.likesCount}
               </div>
-              <div className="flex-1 flex items-center text-gray-800 dark:text-white text-xs text-gray-400 hover:text-blue-400 dark:hover:text-blue-400 transition duration-350 ease-in-out">
+              <div className="flex-1 flex items-center text-gray-800 dark:text-white text-xs  hover:text-blue-400 dark:hover:text-blue-400 transition duration-350 ease-in-out">
                 <svg
                   viewBox="0 0 24 24"
                   fill="currentColor"

@@ -1,26 +1,38 @@
-const { connectedUsers } = require("./utils/connectedUseres");
+const {
+  connectedUsers,
+  connectedUsernames,
+} = require("./utils/connectedUseres");
 
 module.exports.listen = function (server) {
   const io = require("socket.io")(server, {
     cors: {
-      origin: "*", 
+      origin: "*",
       methods: ["GET", "POST"],
     },
   });
   io.listen(8000);
 
   io.on("connection", (socket) => {
-    socket.on("connectedAddUser", (userId) => {
-      connectedUsers[userId] = socket;
+    socket.on("connectedAddUser", (user) => {
+      connectedUsers[user._id] = socket;
+      connectedUsernames[user.username] = user._id;
     });
-    likeNotification(socket);
+    recieveAndSendNotification(socket);
   });
 
   return io;
 };
 
-const likeNotification = (socket) => {
-  socket.on("tweetLike", (tweetAuthor) => {
-    connectedUsers[tweetAuthor].emit("likedTweet", "someone liked your tweet");
+const recieveAndSendNotification = (socket) => {
+  socket.on("sendNotification", function (notificationData) {
+    const { reciever } = notificationData;
+    if (notificationData.type === "tweetMention") {
+      connectedUsers[connectedUsernames[reciever]].emit(
+        "recieveNotification",
+        notificationData
+      );
+    } else {
+      connectedUsers[reciever].emit("recieveNotification", notificationData);
+    }
   });
 };

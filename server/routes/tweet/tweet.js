@@ -12,6 +12,7 @@ const router = require("express").Router(),
     likeTweet,
     getTweetsByHashtag,
     getTopHashtags,
+    getTweet,
   } = require("../../controllers/tweet/tweetControllers");
 
 //Retrieving tweets for the people the user following
@@ -25,6 +26,9 @@ router.post("/", validateCookieToken, validateTweetPayload, addTweet);
 
 // Deleting Tweet passed as payload tweetId
 router.delete("/:tweetId", validateCookieToken, deleteTweet);
+
+// Get Tweet passed as payload tweetId
+router.get("/status/:tweetId", validateCookieToken, getTweet);
 
 // Like Tweet
 router.post("/:tweetId/like", validateCookieToken, likeTweet);

@@ -67,7 +67,7 @@ export const loadUser = () => (dispatch) => {
       store.dispatch(loadUserInfo(res.data));
       dispatch({ type: authActionTypes.USER_LOADED, payload: res.data });
       store.dispatch(loadUserInfo(res.data));
-      store.dispatch(setSocketIO(res.data.user._id));
+      store.dispatch(setSocketIO(res.data.user));
     })
     .catch((err) => {
       store.dispatch(showErrors(err.response.data.errors));

@@ -14,6 +14,7 @@ import { getTFUs } from "./redux/homepage/hompage-actions";
 import UserProfile from "./components/layout/UserProfile";
 import HashtagPage from "./components/layout/HashtagPage";
 import Notifications from "./components/layout/Notifications";
+import TweetPage from "./components/layout/TweetPage";
 
 function App() {
   const { socket } = useSelector((state) => state.notifications);
@@ -42,7 +43,14 @@ function App() {
                         path="/hashtag/:hashtagQuery"
                         element={<HashtagPage />}
                       />
-                      <Route path="/notifications" element={<Notifications />} />
+                      <Route
+                        path="/notifications"
+                        element={<Notifications />}
+                      />
+                      <Route
+                        path="/:user_handler/status/:tweetId"
+                        element={<TweetPage />}
+                      />
                     </Routes>
                   </div>
                   <RightMenu />

@@ -12,8 +12,8 @@ export default function LeftMenu() {
 
   useEffect(() => {
     if (socket !== "")
-      socket.on("likedTweet", (msg) => {
-        store.dispatch(addNotification(msg));
+      socket.on("recieveNotification", (notificationData) => {
+        store.dispatch(addNotification(notificationData));
       });
   }, [socket]);
 

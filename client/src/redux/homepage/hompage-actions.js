@@ -50,24 +50,57 @@ export const loadTweets = () => (dispatch) => {
 };
 
 // Like Tweet
-export const likeTweet = (tweetId, socket, userId) => (dispatch) => {
-  const body = JSON.stringify({ tweetId });
-  axios
-    .post(`/api/tweets/${tweetId}/like`, body, config)
-    .then((res) => {
-      store.dispatch(clearErrors());
-      dispatch({
-        type: homepageActionTypes.LIKE_TWEET_SUCCESS,
-        payload: tweetId,
+export const likeTweet =
+  (tweetId, socket, tweetAuthor, currentUser) => (dispatch) => {
+    const body = JSON.stringify({ tweetId });
+    axios
+      .post(`/api/tweets/${tweetId}/like`, body, config)
+      .then((res) => {
+        store.dispatch(clearErrors());
+        dispatch({
+          type: homepageActionTypes.LIKE_TWEET_SUCCESS,
+          payload: tweetId,
+        });
+
+        socket.emit("sendNotification", {
+          type: "tweetLike",
+          sender: currentUser,
+          reciever: tweetAuthor._id,
+          msg: `${currentUser.username} Liked your Tweet`,
+          link: `/${tweetAuthor.username}/status/${tweetId}`,
+        });
+      })
+      .catch((err) => {
+        store.dispatch(showErrors(err.response.data.errors));
+        dispatch({ type: homepageActionTypes.LIKE_TWEET_FAIL });
       });
-  
-      socket.emit("tweetLike", userId);
-    })
-    .catch((err) => {
-      store.dispatch(showErrors(err.response.data.errors));
-      dispatch({ type: homepageActionTypes.LIKE_TWEET_FAIL });
-    });
-};
+  };
+
+export const likeSpecificTweet =
+  (tweetId, socket, tweetAuthor, currentUser) => (dispatch) => {
+    const body = JSON.stringify({ tweetId });
+    axios
+      .post(`/api/tweets/${tweetId}/like`, body, config)
+      .then((res) => {
+        store.dispatch(clearErrors());
+        dispatch({
+          type: homepageActionTypes.LIKE_SPECIFIC_TWEET,
+          payload: tweetId,
+        });
+
+        socket.emit("sendNotification", {
+          type: "tweetLike",
+          sender: currentUser,
+          reciever: tweetAuthor._id,
+          msg: `${currentUser.username} Liked your Tweet`,
+          link: `/${tweetAuthor.username}/status/${tweetId}`,
+        });
+      })
+      .catch((err) => {
+        store.dispatch(showErrors(err.response.data.errors));
+        dispatch({ type: homepageActionTypes.LIKE_TWEET_FAIL });
+      });
+  };
 
 //Dislike Tweet
 export const disLikeTweet = (tweetId) => (dispatch) => {
@@ -87,13 +120,30 @@ export const disLikeTweet = (tweetId) => (dispatch) => {
     });
 };
 
+export const disLikeSpecificTweet = (tweetId) => (dispatch) => {
+  const body = JSON.stringify({ tweetId });
+  axios
+    .post(`/api/tweets/${tweetId}/dislike`, body, config)
+    .then((res) => {
+      store.dispatch(clearErrors());
+      dispatch({
+        type: homepageActionTypes.DISLIKE_SPECIFIC_TWEET,
+        payload: tweetId,
+      });
+    })
+    .catch((err) => {
+      store.dispatch(showErrors(err.response.data.errors));
+      dispatch({ type: homepageActionTypes.DISLIKE_TWEET_FAIL });
+    });
+};
+
 // Clearing HOmepage & resetting the store
 export const clearHomePage = () => (dispatch) => {
   dispatch({ type: homepageActionTypes.CLEAR_HOMEPAGE });
 };
 
 // Sending New Tweet
-export const sendTweet = (tweetData) => (dispatch) => {
+export const sendTweet = (tweetData, socket, currentUser) => (dispatch) => {
   const body = JSON.stringify(tweetData);
   axios
     .post("/api/tweets", body, config)
@@ -103,7 +153,23 @@ export const sendTweet = (tweetData) => (dispatch) => {
         type: homepageActionTypes.SEND_TWEET_SUCCESS,
         payload: res.data.tweet[0],
       });
+
+      const mentions = res.data.tweet[0].tweet.entities.mentions;
+
+      if (mentions.length > 0) {
+        mentions.forEach((mention) => {
+          let notificationData = {
+            type: "tweetMention",
+            sender: currentUser,
+            reciever: mention,
+            msg: `${currentUser.username} Mentioned you in a tweet.`,
+            link: `/${currentUser.username}/status/${res.data.tweet[0].tweet._id}`,
+          };
+          socket.emit("sendNotification", notificationData);
+        });
+      }
       store.dispatch(clearMedia());
+      console.log(res.data.tweet[0]);
     })
     .catch((err) => {
       store.dispatch(showErrors(err.response.data.errors));
@@ -126,25 +192,26 @@ export const clearMedia = () => (dispatch) => {
 };
 
 // UPload media action
-export const sendTweetIncludeMedia = (file, tweetData) => (dispatch) => {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("upload_preset", "fr8uzr1b");
-  axios
-    .post("https://api.cloudinary.com/v1_1/dwufx31ox/image/upload", formData)
-    .then((res) => {
-      store.dispatch(clearErrors());
-      dispatch({
-        type: homepageActionTypes.UPLOAD_MEDIA_SUCCESS,
+export const sendTweetIncludeMedia =
+  (file, tweetData, socket, currentUser) => (dispatch) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "fr8uzr1b");
+    axios
+      .post("https://api.cloudinary.com/v1_1/dwufx31ox/image/upload", formData)
+      .then((res) => {
+        store.dispatch(clearErrors());
+        dispatch({
+          type: homepageActionTypes.UPLOAD_MEDIA_SUCCESS,
+        });
+        tweetData.media = res.data.secure_url;
+        store.dispatch(sendTweet(tweetData, socket, currentUser));
+      })
+      .catch((err) => {
+        store.dispatch(showErrors(err.response.data.errors));
+        dispatch({ type: homepageActionTypes.UPLOAD_MEDIA_FAIL });
       });
-      tweetData.media = res.data.secure_url;
-      store.dispatch(sendTweet(tweetData));
-    })
-    .catch((err) => {
-      store.dispatch(showErrors(err.response.data.errors));
-      dispatch({ type: homepageActionTypes.UPLOAD_MEDIA_FAIL });
-    });
-};
+  };
 
 // Get tweets by hashtag
 export const getHashtagTweets = (hashtagQuery) => (dispatch) => {
@@ -177,6 +244,24 @@ export const getTopHashtags = () => (dispatch) => {
     .catch((err) => {
       store.dispatch(showErrors(err.response.data.errors));
       dispatch({ type: homepageActionTypes.LOAD_TOP_HASHTAGS_FAIL });
+    });
+};
+
+//get tweet
+export const getTWeet = (tweetId) => (dispatch) => {
+  dispatch({ type: homepageActionTypes.LOADING_SPECIFIC_TWEET });
+  axios
+    .get(`/api/tweets/status/${tweetId}`, config)
+    .then((res) => {
+      store.dispatch(clearErrors());
+      dispatch({
+        type: homepageActionTypes.LOAD_SPECIFIC_TWEET_SUCCESS,
+        payload: res.data.tweet,
+      });
+    })
+    .catch((err) => {
+      store.dispatch(showErrors(err.response.data.errors));
+      dispatch({ type: homepageActionTypes.LOAD_SPECIFIC_TWEET_FAIL });
     });
 };
 

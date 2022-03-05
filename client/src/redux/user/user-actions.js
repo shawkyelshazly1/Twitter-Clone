@@ -29,27 +29,29 @@ export const loadFollowedUsers = () => (dispatch) => {
 };
 
 // Follow User action
-export const followUser = (user_id, user_handler) => (dispatch) => {
-  const data = {
-    followingId: user_id,
-  };
+export const followUser =
+  (user_id, user_handler, socket, notificationData) => (dispatch) => {
+    const data = {
+      followingId: user_id,
+    };
 
-  const body = JSON.stringify(data);
-  axios
-    .post(`/api/users/${user_handler}/follow`, body, config)
-    .then((res) => {
-      store.dispatch(clearErrors());
+    const body = JSON.stringify(data);
+    axios
+      .post(`/api/users/${user_handler}/follow`, body, config)
+      .then((res) => {
+        store.dispatch(clearErrors());
 
-      dispatch({
-        type: userActionTypes.FOLLOW_USER_SUCCESS,
-        payload: res.data,
+        dispatch({
+          type: userActionTypes.FOLLOW_USER_SUCCESS,
+          payload: res.data,
+        });
+        socket.emit("sendNotification", notificationData);
+      })
+      .catch((err) => {
+        store.dispatch(showErrors(err.response.data.errors));
+        dispatch({ type: userActionTypes.FOLLOW_USER_FAIL });
       });
-    })
-    .catch((err) => {
-      store.dispatch(showErrors(err.response.data.errors));
-      dispatch({ type: userActionTypes.FOLLOW_USER_FAIL });
-    });
-};
+  };
 
 export const unFollowUser = (user_id, user_handler) => (dispatch) => {
   const data = {
@@ -117,23 +119,30 @@ export const loadUserTweets = (userId, user_handler) => (dispatch) => {
 };
 
 // Like Tweet
-export const likeUserTweet = (tweetId, socket, userId) => (dispatch) => {
-  const body = JSON.stringify({ tweetId });
-  axios
-    .post(`/api/tweets/${tweetId}/like`, body, config)
-    .then((res) => {
-      store.dispatch(clearErrors());
-      dispatch({
-        type: userActionTypes.LIKE_USER_TWEET_SUCCESS,
-        payload: tweetId,
+export const likeUserTweet =
+  (tweetId, socket, tweetAuthor, currentUser) => (dispatch) => {
+    const body = JSON.stringify({ tweetId });
+    axios
+      .post(`/api/tweets/${tweetId}/like`, body, config)
+      .then((res) => {
+        store.dispatch(clearErrors());
+        dispatch({
+          type: userActionTypes.LIKE_USER_TWEET_SUCCESS,
+          payload: tweetId,
+        });
+        socket.emit("sendNotification", {
+          type: "tweetLike",
+          sender: currentUser,
+          reciever: tweetAuthor._id,
+          msg: `${currentUser.username} Liked your Tweet`,
+          link: `/${tweetAuthor.username}/status/${tweetId}`,
+        });
+      })
+      .catch((err) => {
+        store.dispatch(showErrors(err.response.data.errors));
+        dispatch({ type: userActionTypes.LIKE_USER_TWEET_FAIL });
       });
-      socket.emit("tweetLike", userId);
-    })
-    .catch((err) => {
-      store.dispatch(showErrors(err.response.data.errors));
-      dispatch({ type: userActionTypes.LIKE_USER_TWEET_FAIL });
-    });
-};
+  };
 
 //Dislike Tweet
 export const disLikeUserTweet = (tweetId) => (dispatch) => {

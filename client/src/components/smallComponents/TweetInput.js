@@ -15,6 +15,7 @@ import ProgressCircle from "./ProgressCircle";
 export default function TweetInput() {
   const { userInfo } = useSelector((state) => state.user);
   const { mediaPreviewURI, mediaFile } = useSelector((state) => state.homePage);
+  const { socket } = useSelector((state) => state.notifications);
 
   // Getting count of characters and saving it in the
   const getCount = (e) => {
@@ -29,9 +30,11 @@ export default function TweetInput() {
     };
 
     if (mediaFile === "") {
-      store.dispatch(sendTweet(formData));
+      store.dispatch(sendTweet(formData, socket, userInfo));
     } else {
-      store.dispatch(sendTweetIncludeMedia(mediaFile, formData));
+      store.dispatch(
+        sendTweetIncludeMedia(mediaFile, formData, socket, userInfo)
+      );
     }
 
     e.target[0].value = "";

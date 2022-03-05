@@ -1,22 +1,32 @@
 import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
-import { markNotificationsAsRead } from "../../redux/notification/notification-actions";
+import { useParams } from "react-router";
+import { getTWeet } from "../../redux/homepage/hompage-actions";
 import store from "../../redux/store";
-import Notification from "../smallComponents/Notification";
+import { ReactComponent as LoadingComponent } from "../../loading.svg";
+import { useSelector } from "react-redux";
+import { Link, Navigate } from "react-router-dom";
+import UserTweet from "../smallComponents/UserTweet";
+import SpecificTweet from "../smallComponents/SpecificTweet";
 
-export default function Notifications() {
-  const { notifications } = useSelector((state) => state.notifications);
+export default function TweetPage() {
+  const { loadingSpecificTWeet, tweetData } = useSelector(
+    (state) => state.homePage
+  );
+  const params = useParams();
+
   useEffect(() => {
-    return () => {
-      store.dispatch(markNotificationsAsRead());
-    };
-  }, []);
+    store.dispatch(getTWeet(params.tweetId));
+  }, [params.tweetId]);
 
-  return (
+  if (loadingSpecificTWeet) return <LoadingComponent />;
+
+  return tweetData === null && !loadingSpecificTWeet ? (
+    <Navigate to="/" />
+  ) : (
     <>
       <div className="flex justify-between items-center border-b px-4 py-3 sticky top-0 bg-white dark:bg-dim-900 border-l border-r border-gray-200 dark:border-gray-700">
         <h2 className="text-gray-800 dark:text-gray-100 font-bold font-sm">
-          Notifications
+          Tweet
         </h2>
 
         <div>
@@ -31,17 +41,7 @@ export default function Notifications() {
           </svg>
         </div>
       </div>
-      {notifications.length > 0 ? (
-        notifications.map((notification) => (
-          <Notification key={notification} notification={notification} />
-        ))
-      ) : (
-        <>
-          <p className="mt-10 text-2xl text-center">
-            Nothing to see here! All up to date.
-          </p>
-        </>
-      )}
+      <SpecificTweet tweet={tweetData} />
     </>
   );
 }

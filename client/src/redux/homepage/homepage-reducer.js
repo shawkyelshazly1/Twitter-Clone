@@ -10,6 +10,8 @@ const initialState = {
   mediaPreviewURI: "",
   mediaFile: "",
   topHashtags: [],
+  loadingSpecificTWeet: true,
+  tweetData: null,
 };
 
 const homepageReducer = function (state = initialState, action) {
@@ -36,6 +38,19 @@ const homepageReducer = function (state = initialState, action) {
         top_followed: [],
         tweets: [],
       };
+    case homepageActionTypes.LOADING_SPECIFIC_TWEET:
+      return { ...state, loadingSpecificTWeet: true };
+
+    case homepageActionTypes.LOAD_SPECIFIC_TWEET_FAIL:
+      return { ...state, tweetData: null, loadingSpecificTWeet: false };
+
+    case homepageActionTypes.LOAD_SPECIFIC_TWEET_SUCCESS:
+      return {
+        ...state,
+        tweetData: action.payload,
+        loadingSpecificTWeet: false,
+      };
+
     case homepageActionTypes.LOADING_TWEETS:
       return { ...state, loadingTweets: true };
 
@@ -87,6 +102,14 @@ const homepageReducer = function (state = initialState, action) {
           tweet._id === tweetId ? editedTweet : tweet
         ),
       };
+    case homepageActionTypes.LIKE_SPECIFIC_TWEET:
+      let tweetID = action.payload;
+      let editedOne = state.tweetData;
+      if (state.tweetData._id === tweetID) {
+        editedOne.isLiked = true;
+        editedOne.tweetStats.likesCount += 1;
+      }
+      return { ...state, tweetData: editedOne };
 
     case homepageActionTypes.DISLIKE_TWEET_SUCCESS:
       let Id = action.payload;
@@ -103,6 +126,17 @@ const homepageReducer = function (state = initialState, action) {
           tweet._id === Id ? dislikedTweet : tweet
         ),
       };
+
+    case homepageActionTypes.DISLIKE_SPECIFIC_TWEET:
+      let ID = action.payload;
+      let edited = state.tweetData;
+      if (state.tweetData._id === ID) {
+        edited.isLiked = false;
+        if (edited.tweetStats.likesCount > 0) {
+          edited.tweetStats.likesCount -= 1;
+        }
+      }
+      return { ...state, tweetData: edited };
 
     case homepageActionTypes.SEND_TWEET_FAIL:
     case homepageActionTypes.UPLOAD_MEDIA_SUCCESS:

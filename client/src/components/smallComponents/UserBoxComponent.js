@@ -1,12 +1,25 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import s from "underscore.string";
 import store from "../../redux/store";
 import { followUser } from "../../redux/user/user-actions";
 
 export default function UserBoxComponent({ user }) {
+  const { socket } = useSelector((state) => state.notifications);
+  const { userInfo } = useSelector((state) => state.user);
+
   const handleFollowUser = () => {
-    store.dispatch(followUser(user._id, user.username));
+    const notificationData = {
+      type: "userFollow",
+      sender: userInfo,
+      reciever: user._id,
+      msg: `${userInfo.username} Started following you.`,
+      link: `/${userInfo.username}`,
+    };
+    store.dispatch(
+      followUser(user._id, user.username, socket, notificationData)
+    );
   };
   return (
     <div className="text-blue-400 text-sm font-normal p-3 border-b border-gray-200 dark:border-dim-200 hover:bg-gray-100 dark:hover:bg-dim-300 cursor-pointer transition duration-350 ease-in-out">

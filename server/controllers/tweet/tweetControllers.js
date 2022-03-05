@@ -592,3 +592,105 @@ exports.getTopHashtags = async (req, res, next) => {
     }
   );
 };
+
+// Get Specific Tweet
+exports.getTweet = async (req, res, next) => {
+  const { tweetId } = req.params;
+
+  const tweets = await Tweet.aggregate(
+    [
+      { $match: { $expr: { $eq: ["$_id", { $toObjectId: tweetId }] } } },
+      {
+        $lookup: {
+          let: {
+            searchId: { $toString: "$_id" },
+          },
+          from: "tweetlikes",
+          pipeline: [
+            { $match: { $expr: { $eq: ["$tweetId", "$$searchId"] } } },
+            { $count: "likesCount" },
+          ],
+          as: "tweetLikes",
+        },
+      },
+
+      {
+        $set: {
+          tweetStats: {
+            $cond: [
+              { $eq: ["$tweetLikes", []] },
+              { likesCount: 0 },
+              { $first: "$tweetLikes" },
+            ],
+          },
+        },
+      },
+      {
+        $lookup: {
+          let: {
+            userSearchId: { $toString: req.user._id },
+            searchId: { $toString: "$_id" },
+          },
+          from: "tweetlikes",
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$tweetId", "$$searchId"] },
+                    { $eq: ["$userId", "$$userSearchId"] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "liked",
+        },
+      },
+      {
+        $set: {
+          isLiked: {
+            $cond: [{ $eq: ["$liked", []] }, false, true],
+          },
+        },
+      },
+      {
+        $set: {
+          isLiked: "$isLiked",
+        },
+      },
+      {
+        $lookup: {
+          let: { searchId: { $toObjectId: "$authorId" } },
+          from: "users",
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$searchId"] } } },
+            {
+              $project: {
+                password: 0,
+                dateOfBirth: 0,
+                gender: 0,
+                createdAt: 0,
+                updatedAt: 0,
+              },
+            },
+          ],
+          as: "authorInfo",
+        },
+      },
+      {
+        $addFields: { authorInfo: { $first: "$authorInfo" } },
+      },
+      {
+        $project: {
+          tweetLikes: 0,
+          liked: 0,
+        },
+      },
+    ],
+    function (err, tweet) {
+      if (err) return res.status(400).json({ errors: [err] });
+      return res.status(200).json({ success: true, tweet: tweet[0] });
+    }
+  );
+};

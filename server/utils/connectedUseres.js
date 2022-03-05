@@ -1,3 +1,4 @@
 const connectedUsers = {};
+const connectedUsernames = {};
 
-module.exports = { connectedUsers };
+module.exports = { connectedUsers, connectedUsernames };
