@@ -36,11 +36,7 @@ app.use(
   helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'"],
-      connectSrc: [
-        "'self'",
-        "https://api.cloudinary.com",
-        "http://localhost:5000/socket.io/",
-      ],
+      connectSrc: ["'self'", "https://api.cloudinary.com"],
       frameSrc: ["'self'"],
       childSrc: ["'self'"],
       scriptSrc: ["'self'"],

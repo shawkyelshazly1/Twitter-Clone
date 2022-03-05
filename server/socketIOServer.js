@@ -3,7 +3,7 @@ const { connectedUsers } = require("./utils/connectedUseres");
 module.exports.listen = function (server) {
   const io = require("socket.io")(server, {
     cors: {
-      origin: "http://localhost:3000", // or "*"
+      origin: "*", 
       methods: ["GET", "POST"],
     },
   });
