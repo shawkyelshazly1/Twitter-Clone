@@ -130,13 +130,15 @@ export const likeUserTweet =
           type: userActionTypes.LIKE_USER_TWEET_SUCCESS,
           payload: tweetId,
         });
-        socket.emit("sendNotification", {
-          type: "tweetLike",
-          sender: currentUser,
-          reciever: tweetAuthor._id,
-          msg: `${currentUser.username} Liked your Tweet`,
-          link: `/${tweetAuthor.username}/status/${tweetId}`,
-        });
+        if (currentUser._id !== tweetAuthor._id) {
+          socket.emit("sendNotification", {
+            type: "tweetLike",
+            sender: currentUser,
+            reciever: tweetAuthor._id,
+            msg: `${currentUser.username} Liked your Tweet`,
+            link: `/${tweetAuthor.username}/status/${tweetId}`,
+          });
+        }
       })
       .catch((err) => {
         store.dispatch(showErrors(err.response.data.errors));

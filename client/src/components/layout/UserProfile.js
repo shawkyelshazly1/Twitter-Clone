@@ -16,6 +16,8 @@ import UserTweet from "../smallComponents/UserTweet";
 import { getTFUs, getTopHashtags } from "../../redux/homepage/hompage-actions";
 
 export default function UserProfile() {
+  const { socket } = useSelector((state) => state.notifications);
+  const { userInfo } = useSelector((state) => state.user);
   const { loadingUserProfile, loadedUser, userTweets, loadingUserTweets } =
     useSelector((state) => state.user);
 
@@ -24,6 +26,19 @@ export default function UserProfile() {
   const { followedUsers } = useSelector((state) => state.user);
 
   const params = useParams();
+
+  const handleFollowUser = () => {
+    const notificationData = {
+      type: "userFollow",
+      sender: userInfo,
+      reciever: loadedUser._id,
+      msg: `${userInfo.username} Started following you.`,
+      link: `/${userInfo.username}`,
+    };
+    store.dispatch(
+      followUser(loadedUser._id, loadedUser.username, socket, notificationData)
+    );
+  };
 
   useEffect(() => {
     store.dispatch(loadUserProfile(params.user_handler));
@@ -103,9 +118,7 @@ export default function UserProfile() {
                   <div className="flex flex-col text-right">
                     <button
                       onClick={() => {
-                        store.dispatch(
-                          followUser(loadedUser._id, loadedUser.username)
-                        );
+                        handleFollowUser();
                       }}
                       className="flex justify-center  max-h-max whitespace-nowrap focus:outline-none  focus:ring  rounded max-w-max border bg-transparent border-blue-500 text-blue-500 hover:border-blue-800 hover:border-blue-800 flex items-center hover:shadow-lg font-bold py-2 px-4 rounded-full mr-0 ml-auto"
                     >

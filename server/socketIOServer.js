@@ -26,13 +26,19 @@ module.exports.listen = function (server) {
 const recieveAndSendNotification = (socket) => {
   socket.on("sendNotification", function (notificationData) {
     const { reciever } = notificationData;
-    if (notificationData.type === "tweetMention") {
-      connectedUsers[connectedUsernames[reciever]].emit(
-        "recieveNotification",
-        notificationData
-      );
-    } else {
-      connectedUsers[reciever].emit("recieveNotification", notificationData);
+
+    if (
+      notificationData.sender._id != reciever ||
+      notificationData.sender._id != connectedUsernames[reciever]
+    ) {
+      if (notificationData.type === "tweetMention") {
+        connectedUsers[connectedUsernames[reciever]].emit(
+          "recieveNotification",
+          notificationData
+        );
+      } else {
+        connectedUsers[reciever].emit("recieveNotification", notificationData);
+      }
     }
   });
 };

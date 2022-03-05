@@ -61,14 +61,15 @@ export const likeTweet =
           type: homepageActionTypes.LIKE_TWEET_SUCCESS,
           payload: tweetId,
         });
-
-        socket.emit("sendNotification", {
-          type: "tweetLike",
-          sender: currentUser,
-          reciever: tweetAuthor._id,
-          msg: `${currentUser.username} Liked your Tweet`,
-          link: `/${tweetAuthor.username}/status/${tweetId}`,
-        });
+        if (currentUser._id !== tweetAuthor._id) {
+          socket.emit("sendNotification", {
+            type: "tweetLike",
+            sender: currentUser,
+            reciever: tweetAuthor._id,
+            msg: `${currentUser.username} Liked your Tweet`,
+            link: `/${tweetAuthor.username}/status/${tweetId}`,
+          });
+        }
       })
       .catch((err) => {
         store.dispatch(showErrors(err.response.data.errors));
@@ -87,14 +88,15 @@ export const likeSpecificTweet =
           type: homepageActionTypes.LIKE_SPECIFIC_TWEET,
           payload: tweetId,
         });
-
-        socket.emit("sendNotification", {
-          type: "tweetLike",
-          sender: currentUser,
-          reciever: tweetAuthor._id,
-          msg: `${currentUser.username} Liked your Tweet`,
-          link: `/${tweetAuthor.username}/status/${tweetId}`,
-        });
+        if (currentUser._id !== tweetAuthor._id) {
+          socket.emit("sendNotification", {
+            type: "tweetLike",
+            sender: currentUser,
+            reciever: tweetAuthor._id,
+            msg: `${currentUser.username} Liked your Tweet`,
+            link: `/${tweetAuthor.username}/status/${tweetId}`,
+          });
+        }
       })
       .catch((err) => {
         store.dispatch(showErrors(err.response.data.errors));
@@ -158,18 +160,19 @@ export const sendTweet = (tweetData, socket, currentUser) => (dispatch) => {
 
       if (mentions.length > 0) {
         mentions.forEach((mention) => {
-          let notificationData = {
-            type: "tweetMention",
-            sender: currentUser,
-            reciever: mention,
-            msg: `${currentUser.username} Mentioned you in a tweet.`,
-            link: `/${currentUser.username}/status/${res.data.tweet[0].tweet._id}`,
-          };
-          socket.emit("sendNotification", notificationData);
+          if (mention !== currentUser.username) {
+            let notificationData = {
+              type: "tweetMention",
+              sender: currentUser,
+              reciever: mention,
+              msg: `${currentUser.username} Mentioned you in a tweet.`,
+              link: `/${currentUser.username}/status/${res.data.tweet[0].tweet._id}`,
+            };
+            socket.emit("sendNotification", notificationData);
+          }
         });
       }
       store.dispatch(clearMedia());
-      console.log(res.data.tweet[0]);
     })
     .catch((err) => {
       store.dispatch(showErrors(err.response.data.errors));

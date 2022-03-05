@@ -28,8 +28,8 @@ export default function UserBoxComponent({ user }) {
           <div className="flex flex-row">
             <img
               className="w-10 h-10 rounded-full"
-              src="https://pbs.twimg.com/profile_images/1308769664240160770/AfgzWVE7_normal.jpg"
-              alt="Joe Biden"
+              src={user.photo}
+              alt={user.username}
             />
             <div className="flex flex-col ml-2">
               <h1 className="text-gray-900 dark:text-white font-bold text-sm">

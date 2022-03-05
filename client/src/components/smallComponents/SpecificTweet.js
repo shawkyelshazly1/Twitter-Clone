@@ -15,7 +15,6 @@ export default function SpecificTweet({ tweet }) {
   const { socket } = useSelector((state) => state.notifications);
   const { userInfo } = useSelector((state) => state.user);
 
-  console.log(tweet);
 
   //Replacing hashtags with Links to hashtag page
   let adjustedContent = reactStringReplace(
@@ -125,7 +124,8 @@ export default function SpecificTweet({ tweet }) {
               <div className="flex-1 flex items-center text-gray-800 dark:text-white text-xs  hover:text-red-600 dark:hover:text-red-600 transition duration-350 ease-in-out">
                 {tweet.isLiked ? (
                   <svg
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
                       store.dispatch(disLikeSpecificTweet(tweet._id));
                     }}
                     viewBox="0 -17 100 100"
@@ -137,7 +137,8 @@ export default function SpecificTweet({ tweet }) {
                   </svg>
                 ) : (
                   <svg
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
                       store.dispatch(
                         likeSpecificTweet(
                           tweet._id,
